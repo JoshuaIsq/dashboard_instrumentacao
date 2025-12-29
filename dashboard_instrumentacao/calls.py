@@ -4,11 +4,11 @@ import scipy as sp
 from scipy import signal
 import dearpygui.dearpygui as dpg
 from Import_Calib_filter import DataStorage as ds
-from Import_Calib_filter import Load_data, adjust_offset, moving_average, filter_low_pass, filter_high_pass, calibration
+from Import_Calib_filter import Load_data, remove_outliers, adjust_offset, moving_average, filter_low_pass, filter_high_pass, calibration
 
 """Criado para processar as informações contidas nos gráficos e dados manipulados, e os exporta pro gráfico
 Contem as funções 
-Process: Tem como objetivo processar os dados carregados
+Process: Tem como objetivo processar os dados processados, adicionando calibração, filtro e offset
 callback_zoom: Adicionar zoom ao gráfico
 def_select_archive: função para escolher qal arquivo você irá plotar"""
 
@@ -19,17 +19,20 @@ def process(sender, app_data, user_data):
 
     if ds.df_sensores.empty: 
         return
-
+    
     df_trabalho = ds.df_sensores.copy()
-    #---- dado processado ------
 
-
+# ---- 2. Criaçãpo de botões de ação ----- #
 
     calib = dpg.get_value("input_calibration")
     if calib > 0.0:
         df_trabalho = calibration(df_trabalho, calib)
-        print(df_trabalho)
-     #----- botão de calibração -------
+        
+
+    outlier = dpg.get_value("input_outlier")
+    if outlier > 0:
+        df_trabalho = remove_outliers(df_trabalho, window=outlier, thresh=3, verbose=False)
+     
 
 
     dpg.delete_item("eixo_y", children_only=True)
