@@ -59,6 +59,7 @@ def Load_data(filename):
 
     for arquivo in file_to_process: 
         if arquivo.endswith('.txt'):
+            #arquivo = r"C:\Users\joshua.marinho\Documents\dashboard_instrumentacao\tests\LOG_1.txt"
             txt_file = pd.read_csv(arquivo, sep='\t', header=None, engine='python', on_bad_lines='skip' )
 
             print(f"Lendo arquivo {arquivo}, colunas encontradas: {(txt_file.shape[1])}")

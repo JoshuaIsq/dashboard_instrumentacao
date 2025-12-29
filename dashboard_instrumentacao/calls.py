@@ -6,6 +6,13 @@ import dearpygui.dearpygui as dpg
 from Import_Calib_filter import DataStorage as ds
 from Import_Calib_filter import Load_data, adjust_offset, moving_average, filter_low_pass, filter_high_pass, calibration
 
+"""Criado para processar as informações contidas nos gráficos e dados manipulados, e os exporta pro gráfico
+Contem as funções 
+Process: Tem como objetivo processar os dados carregados
+callback_zoom: Adicionar zoom ao gráfico
+def_select_archive: função para escolher qal arquivo você irá plotar"""
+
+
 # ---- 1. seleção de arquivo -------#
 
 def process(sender, app_data, user_data):
@@ -14,11 +21,14 @@ def process(sender, app_data, user_data):
         return
 
     df_trabalho = ds.df_sensores.copy()
+    #---- dado processado ------
 
-    calib = dpg.get_value("imput_calibration")
-    if calib > 0:
+
+
+    calib = dpg.get_value("input_calibration")
+    if calib > 0.0:
         df_trabalho = calibration(df_trabalho, calib)
-
+     #----- botão de calibração -------
 
 
     dpg.delete_item("eixo_y", children_only=True)
@@ -29,7 +39,7 @@ def process(sender, app_data, user_data):
         if tag_check and dpg.get_value(tag_check):
             if col_name in df_trabalho.columns:
                 value_y = df_trabalho[col_name].tolist()
-                dpg.add_line_series(ds.df_timestamp, value_y, parent="eixo_y", label=f"Ext {col_name}")
+                dpg.add_line_series(ds.df_timestamp, value_y, parent="eixo_y", label=f"Ext {col_name-5}")
 
     ds.df_actual_view = df_trabalho.copy()
 
@@ -42,9 +52,9 @@ def callback_zomm(sender, app_data):
 
 
 
-"""def select_archive(sender, app_data):
+def select_archive(sender, app_data):
 
-    file_path = app_data("file_path")
+    file_path = app_data['file_path_name']
 
     ds.df_timestamp, ds.df_sensores = Load_data(file_path)
 
@@ -59,12 +69,12 @@ def callback_zomm(sender, app_data):
             ds.checkbox_tags[col] = tag_chk
             # Marca os 3 primeiros por padrão
             estado = True if col in ds.colum_view[:3] else False
-            dpg.add_checkbox(label=f"Ext {col}", tag=tag_chk, default_value=estado, callback=processar_e, parent="grupo_lista_canais")
+            dpg.add_checkbox(label=f"Ext {col-5}", tag=tag_chk, default_value=estado, callback=process, parent="grupo_lista_canais")
         
-        processar_e_plotar(None, None, None)
+        process(None, None, None)
         dpg.fit_axis_data("eixo_x")
         dpg.fit_axis_data("eixo_y")
-        dpg.set_axis_limits("eixo_y",-40, 40)"""
+
     
 
     
