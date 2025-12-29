@@ -78,6 +78,7 @@ def select_archive(sender, app_data):
         process(None, None, None)
         dpg.fit_axis_data("eixo_x")
         dpg.fit_axis_data("eixo_y")
+        dpg.set_axis_limits("eixo_y",-40, 40)
 
     
 
