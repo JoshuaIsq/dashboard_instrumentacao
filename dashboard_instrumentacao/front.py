@@ -1,4 +1,4 @@
-from calls import process
+from calls import process, callback_zomm
 from Import_Calib_filter import DataStorage
 import dearpygui.dearpygui as dpg
 
@@ -27,7 +27,14 @@ with dpg.window(tag="Primary Window"):
     dpg.add_text("VISUALIZADOR DE EXTENSOMETRIA", color=(0, 0, 0),)
     dpg.add_spacer(width=50)
 
-    
+    with dpg.group(horizontal=True):
+        with dpg.plot(label="Extensômetros superiores", height=-1, width=-1, query=True, callback=callback_zomm):
+            dpg.add_plot_legend()
+            
+            xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Data / Hora", tag="eixo_x", time=True)
+            yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag="eixo_y")
+
+
 dpg.create_viewport(title='Analise Grafica', width=1000, height=600)
 dpg.setup_dearpygui()
 dpg.show_viewport()

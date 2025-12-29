@@ -33,6 +33,11 @@ def process(sender, app_data, user_data):
 
     ds.df_actual_view = df_trabalho.copy()
 
+def callback_zomm(sender, app_data):
+    x_min, x_max = app_data[0], app_data[1]
+    y_min, y_max = app_data[2], app_data[3]
+    dpg.set_axis_limits("eixo_x", x_min, x_max)
+    dpg.set_axis_limits("eixo_y", y_min, y_max)
 
 
 
