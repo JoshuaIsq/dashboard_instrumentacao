@@ -28,6 +28,7 @@ def process(sender, app_data, user_data):
     calib = dpg.get_value("input_calibration")
     if calib > 0.0:
         df_trabalho = calibration(df_trabalho, calib)
+        print(df_trabalho)
      #----- botão de calibração -------
 
 

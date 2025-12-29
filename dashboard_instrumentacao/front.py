@@ -35,7 +35,7 @@ with dpg.window(tag="Primary Window"):
         with dpg.group(horizontal=True):
             with dpg.group(horizontal=False):
                 dpg.add_text("Calibração:")
-                dpg.add_input_int(default_value=0, width=90, tag="input_calibration")
+                dpg.add_input_float(default_value=0, width=90, tag="input_calibration")
                 dpg.add_spacer(height=20)
                 dpg.add_button(label="Aplicar calibração", callback=process)
 
