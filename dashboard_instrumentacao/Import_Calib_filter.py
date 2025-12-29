@@ -92,8 +92,8 @@ def Load_data(filename):
     return axe_x_time, sensors
 
 
-def calibration(sensor, factor):
-
+def calibration(df, factor):
+    sensor = df.copy()
     factor_val = float(factor)
     calibration = sensor * factor_val
 
