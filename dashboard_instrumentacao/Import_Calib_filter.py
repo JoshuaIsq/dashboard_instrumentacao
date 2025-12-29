@@ -88,7 +88,7 @@ def Load_data(filename):
     for col in raw_data.columns:
         raw_data[col] = pd.to_numeric(raw_data[col], errors='coerce')    
     sensors = raw_data.fillna(0.0)
-    
+
     return axe_x_time, sensors
 
 
@@ -104,15 +104,15 @@ def calibration(sensor, factor):
 
 """Este trecho contem todas as funções de filtros e ajustes que podem ser aplicados
 
-    Média movel: Suaviza os dados aplicando uma média móvel com janela definida pelo usuário.
-    Ajuste de offset: Remove o offset inicial dos dados com base na média dos primeiros n pontos.
-    Filtro passa baixa: Aplica um filtro Butterworth passa baixa para remover ruídos de alta frequência.
-    Filtro passa alta: Aplica um filtro Butterworth passa alta para remover tendências de baixa frequência.
-    Identificação de outliers: Detecta pontos fora do padrão usando z-score baseado em média móvel.
-    Remoção de outliers: Substitui os outliers identificados por interpolação linear.
+    Moving_average: Suaviza os dados aplicando uma média móvel com janela definida pelo usuário.
+    Adjust_offset: Remove o offset inicial dos dados com base na média dos primeiros n pontos.
+    Filter_low_pass: Aplica um filtro Butterworth passa baixa para remover ruídos de alta frequência.
+    Filter_high_Pass: Aplica um filtro Butterworth passa alta para remover tendências de baixa frequência.
+    Identify_outliers: Detecta pontos fora do padrão usando z-score baseado em média móvel.
+    Remove_outliers: Substitui os outliers identificados por interpolação linear.
     """
 
-def media_movel(df, janela):
+def moving_average(df, janela):
     df_copia = df.copy() 
     df_copia = df_copia.rolling(window=int(janela), min_periods=1).mean() 
 
@@ -147,7 +147,7 @@ def filter_high_pass(df, freq_corte, freq_rate, order):
 
     return df_copia.round(4)
 
-
+#Avaliar a possiblidade de transformar em uma função só
 def indentify_outliers(df, window, thresh=3, verbose=False):
     df_copia = df.copy()
     outlier_mask = pd.DataFrame(False, index=df_copia.index, columns=df_copia.columns)
@@ -173,5 +173,46 @@ def remove_outliers(df, window, thresh=3, verbose=False):
 
     return df_copia.round(4)
 
+#-------3. Calculo da tendência global ---------
+
+def tendency(df, window_size=None): 
+    """
+    Calcula a TENDÊNCIA GLOBAL (Regressão Linear Simples).
+    Gera uma reta única que mostra a direção geral (drift) dos dados.
+    """
+    df_copia = df.copy()
+    tendencia_df = pd.DataFrame()
+    
+    print("Calculando Regressão Linear")
+    
+    x_axis = np.arange(len(df_copia))
+    
+    for col in df_copia.columns:
+        y_axis = df_copia[col].values
+        
+        try:
+            #calcula a regressão linear
+            coeficientes = np.polyfit(x_axis, y_axis, 1)
+            
+            # Cria a função da reta: f(x) = ax + b
+            funcao_reta = np.poly1d(coeficientes)
+            
+            # Gera os pontos da reta para plotar
+            tendencia_df[col] = funcao_reta(x_axis)
+            
+        except Exception as e:
+            print(f"Erro na regressão global de {col}: {e}")
+            tendencia_df[col] = y_axis 
+
+    return tendencia_df.round(4)
+
+
+def actual_tendency(janela_pontos=None):
+    if DataStorage.df_visualizacao_atual.empty:
+        print("[Erro] Nenhum dado disponível.")
+        return None
+    
+    # Não precisamos mais passar janela para essa lógica global
+    return tendency(DataStorage.df_visualizacao_atual)
 
 
