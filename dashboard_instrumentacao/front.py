@@ -23,13 +23,14 @@ with dpg.theme() as tema_claro:
         dpg.add_theme_color(dpg.mvThemeCol_FrameBg, (255, 255, 255))
         dpg.add_theme_color(dpg.mvThemeCol_Border, (255, 255, 255))
 
-with dpg.file_dialog(directory_selector=False, show=True, callback=select_archive, tag="file_dialog_id", width=700, height=400):
+with dpg.file_dialog(directory_selector=False, show=False, callback=select_archive, tag="file_dialog_id", width=700, height=400):
     dpg.add_file_extension(".txt", color=(0, 255, 0, 255))
     dpg.add_file_extension(".*")
 
 with dpg.window(tag="Primary Window"):
     dpg.add_text("VISUALIZADOR DE EXTENSOMETRIA", color=(0, 0, 0),)
     dpg.add_spacer(width=50)
+    dpg.add_button(label='Selecionar arquivo', callback=lambda: dpg.show_item('file_dialog_id'))
 
     with dpg.group(horizontal=True):
         with dpg.group(horizontal=True):
