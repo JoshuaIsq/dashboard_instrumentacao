@@ -16,7 +16,7 @@ class DataStorage:
     df_timestamp: Armazena dados de tempo (eixo x)
     df_sensors: Armaze os dados dos sensores (eixo Y)
     checkbox_tags: Marcação de tags para selecionar sensores
-    colum_view: colunas que estão marcadas
+    column_view: colunas que estão marcadas
     acumullated: Arquivos acumulados para futura concatenação
     df_actual_view: Mostra o dataframe com suas respectivas modificações (filtros, offset e etc)
     """
@@ -24,11 +24,12 @@ class DataStorage:
     df_timestamp = []  
     df_sensores = pd.DataFrame() 
     checkbox_tags = {} 
-    colum_view = [] 
+    column_view = [] 
     acumullated = [] 
     df_actual_view = pd.DataFrame() 
 
     #----- 1. importação e calibração ------------ #
+
 
 def Load_data(filename):
 
