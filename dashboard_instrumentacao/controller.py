@@ -9,9 +9,12 @@ from dashboard_instrumentacao.Model import Load_data, remove_outliers, adjust_of
 """Criado para processar as informações contidas nos gráficos e dados manipulados, e os exporta pro gráfico
 Contem as funções 
 Process: Tem como objetivo pegar a lista de sensores com dados já importados,
-         e aplicar calibração, offset e filtros
+e aplicar calibração, offset e filtros
 callback_zoom: Adicionar zoom ao gráfico
 def_select_archive: função para escolher qual arquivo você irá plotar"""
+
+"Nenhuma das classes do datastorage precisa estar ali, elas tem de ser protegidas"
+"Melhor criar uma classe aqui e as proteger"
 
 
 # ---- 1. seleção de arquivo -------#
@@ -24,19 +27,15 @@ def process(sender, app_data, user_data):
     df_trabalho = ds.df_sensores.copy()
 
 # ---- 2. Criaçã0 de botões de ação ----- #
-
     calib = dpg.get_value("input_calibration")
-    if calib > 0.0:
-        df_trabalho = calibration(df_trabalho, calib)
+    df_trabalho = calibration(df_trabalho, calib)
         
 
     outlier = dpg.get_value("input_outlier")
-    if outlier > 0:
-        df_trabalho = remove_outliers(df_trabalho, window=outlier, thresh=3, verbose=False)
+    df_trabalho = remove_outliers(df_trabalho, window=outlier, thresh=3, verbose=False)
 
     offset = dpg.get_value('input_offset')
-    if offset > 0:
-        df_trabalho = adjust_offset(df_trabalho, offset)
+    df_trabalho = adjust_offset(df_trabalho, offset)
      
 # ----- 3. Criação das checkbox --------
 

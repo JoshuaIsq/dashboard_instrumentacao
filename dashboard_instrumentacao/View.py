@@ -11,9 +11,8 @@ with dpg.font_registry():
 
 dpg.bind_font(default_font)
 
-#------- 1. Definição da janela principal e seu design -------#
 
-with dpg.theme() as tema_claro:
+with dpg.theme() as theme:
     with dpg.theme_component(dpg.mvAll):
         dpg.add_theme_color(dpg.mvPlotCol_PlotBg, (255, 255, 255, 255), category=dpg.mvThemeCat_Plots)
         dpg.add_theme_color(dpg.mvThemeCol_WindowBg, (255, 0, 0, 255))
@@ -24,13 +23,11 @@ with dpg.theme() as tema_claro:
         dpg.add_theme_color(dpg.mvThemeCol_FrameBg, (255, 255, 255))
         dpg.add_theme_color(dpg.mvThemeCol_Border, (0, 0, 0))
 
-# ------- 2. janela para selecionar o arquivo a ser analisado -----#
 with dpg.file_dialog(directory_selector=False, show=False, callback=select_archive, tag="file_dialog_id", width=700, height=400):
     dpg.add_file_extension(".txt", color=(0, 255, 0, 255))
     dpg.add_file_extension(".*")
 
 #-------- 2 . Janela principal onde vemos tudo acontecer ----- #
-
 with dpg.window(tag="Primary Window"):
     dpg.add_text("Vizualizador de dados de instrumentação", color=(0, 0, 0),)
     dpg.add_spacer(width=50)
@@ -40,7 +37,6 @@ with dpg.window(tag="Primary Window"):
     with dpg.group(horizontal=True):
         dpg.add_separator()
 
-        #----- 2.1.1 criação de botões --------
         class Button():
             def __init__(self, text: str, tag: str, label: str, is_float: bool = True):
                 with dpg.group(horizontal=True):
@@ -59,7 +55,6 @@ with dpg.window(tag="Primary Window"):
         Button('Remoção de Outliers:', 'input_outlier', 'Remover Outliers', is_float=False)
         Button('Ajuste de offset:', 'input_offset', 'Ajustar offset', is_float=False)
 
-
         dpg.add_spacer(width=10)
         dpg.add_separator()
 
@@ -68,20 +63,15 @@ with dpg.window(tag="Primary Window"):
         
         # ---- 2.2.1 Cria a Caixa da Esquerda (Lista de Canais)
         with dpg.child_window(width=200, height=-1):
-            dpg.add_text("Canais Disponíveis:")
-            def toggle_all(sender, app_data):
-                for col in ds.column_view:
-                    dpg.set_value(ds.checkbox_tags[col], True)
-                process(None, None, None)
-            dpg.add_button(label="Marcar Todos", callback=toggle_all)
+            dpg.add_text("Sensores Disponíveis:")
             dpg.add_separator()
             with dpg.group(tag="grupo_lista_canais"):
             # Cria os Checkboxes
                 for col in ds.column_view:
                     tag_chk = f"chk_{col}"
                     ds.checkbox_tags[col] = tag_chk
-                    comeca_marcado = True if col in ds.column_view[:3] else False
-                    dpg.add_checkbox(label=f"Canal {col}", tag=tag_chk, default_value=comeca_marcado, callback=process)
+                    comeca_marcado = True if col in ds.column_view[:5] else False
+                    dpg.add_checkbox(label=f"Sensor {col}", tag=tag_chk, default_value=comeca_marcado, callback=process)
 
         # ---- 2.2.2 Cria o gráfico como a janela principal da parte inferior ---- #
         with dpg.group(horizontal=True):
@@ -90,7 +80,7 @@ with dpg.window(tag="Primary Window"):
                 xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Data / Hora", tag="eixo_x", time=True)
                 yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag="eixo_y")
 
-dpg.bind_item_theme("Primary Window", tema_claro)
+dpg.bind_item_theme("Primary Window", theme)
 dpg.create_viewport(title='Analise Grafica', width=1000, height=600)
 dpg.setup_dearpygui()
 dpg.show_viewport()
