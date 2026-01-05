@@ -27,3 +27,4 @@ Ver sobre isso Tambem
 
 -30/12/2025
 
+Fazer toda a parte de importação como uma associação, tanto da calibração quanto da importação e uso de database

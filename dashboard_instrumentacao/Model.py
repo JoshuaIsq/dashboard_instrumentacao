@@ -15,7 +15,7 @@ class DataStorage:
     A classe é composta pelas listas
     df_timestamp: Armazena dados de tempo (eixo x)
     df_sensors: Armaze os dados dos sensores (eixo Y)
-    checkbox_tags: Marcação de tags para selecionar sensores
+    checkbox_tags: Marcação de tags para s elecionar sensores
     column_view: colunas que estão marcadas
     acumullated: Arquivos acumulados para futura concatenação
     df_actual_view: Mostra o dataframe com suas respectivas modificações (filtros, offset e etc)
