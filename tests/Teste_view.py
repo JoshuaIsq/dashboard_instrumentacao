@@ -12,8 +12,8 @@ class PrimaryView():
 
     def graph_plot(self, time, sensors):
         dpg.delete_item("eixo_y", children_only=True)
-        sensor = 5
-        for sensor in sensors.columns:
+        teste_seleção = sensors.columns[:5]
+        for sensor in teste_seleção:
             axe_y = sensors[sensor].tolist()
             dpg.add_line_series(time, axe_y, label=sensor, parent="eixo_y")
         dpg.fit_axis_data("eixo_y")
@@ -54,10 +54,17 @@ class PrimaryView():
             dpg.add_button(label='Selecionar arquivo', callback=lambda: dpg.show_item('file_dialog_id'))
 
             with dpg.group(horizontal=True):
-                    with dpg.plot(label="Extensômetros superiores", height=-1, width=-1, query=True,):
-                        dpg.add_plot_legend()
-                        xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Data / Hora", tag="eixo_x", time=True)
-                        yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag="eixo_y")
+                dpg.add_separator()
+
+                with dpg.child_window(width=200, height=-1):
+                    dpg.add_text('Selecionar canais: ')
+                    dpg.add_separator()
+
+                with dpg.group(horizontal=True):
+                        with dpg.plot(label="Extensômetros superiores", height=-1, width=-1, query=True,):
+                            dpg.add_plot_legend()
+                            xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Data / Hora", tag="eixo_x", time=True)
+                            yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag="eixo_y")
 
 
 
