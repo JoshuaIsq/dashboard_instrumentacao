@@ -11,7 +11,7 @@ class LogImporter():
         self.df_timestamp = []
         self.df_sensors = pd.DataFrame()
         self.df_full = []
-        self.df_join_files = []
+        self.df_joined_files = []
         
     def import_file(self, file):
         if file.endswith('.txt'):
@@ -31,18 +31,18 @@ class LogImporter():
         df_temp = pd.DataFrame({'timestamp': timestamp}) 
         sensors = self.df_sensors.iloc[:, 6:]
         self.df_full = pd.concat([df_temp, sensors], axis=1)
-        self.df_join_files.append(self.df_full)
-        print(len(self.df_join_files)) #ver quantos arquivos foram concatenados
+        self.df_joined_files.append(self.df_full)
+        print(f"Total de {len(self.df_joined_files)} arquivos adicionados") 
 
         
     def join_files(self):
-        if len(self.df_join_files) > 0:
-            df_final = pd.concat(self.df_join_files, axis=0, ignore_index=True)
-            df_final = df_final.sort_values(by='timestamp').reset_index(drop=True)
-            time_axe = (df_final['timestamp'].astype('int64') / 10**9).tolist()
-            sensor_axe = df_final.drop(columns=['timestamp'])
-            print(f"Sucesso! Todos os {len(self.df_join_files)} arquivos foram unidos.")
-            print(f"Tamanho final: {df_final.shape}")
+        if len(self.df_joined_files) > 0:
+            df_concatenaded = pd.concat(self.df_joined_files, axis=0, ignore_index=True)
+            df_concatenaded = df_concatenaded.sort_values(by='timestamp').reset_index(drop=True)
+            time_axe = (df_concatenaded['timestamp'].astype('int64') / 10**9).tolist()
+            sensor_axe = df_concatenaded.drop(columns=['timestamp'])
+            print(f"Sucesso! Todos os {len(self.df_joined_files)} arquivos foram unidos.")
+            print(f"Quantidade de pontos: {df_concatenaded.shape}")
             return time_axe, sensor_axe
         else:
             print("A lista está vazia. Importe e processe arquivos antes de unir.")

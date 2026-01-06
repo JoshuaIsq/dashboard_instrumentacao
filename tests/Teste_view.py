@@ -26,7 +26,7 @@ class PrimaryView():
         dpg.bind_font(default_font)
 
 
-    def _colors(self):
+    def colors(self):
         with dpg.theme() as theme:
             with dpg.theme_component(dpg.mvAll):
                 dpg.add_theme_color(dpg.mvPlotCol_PlotBg, (255, 255, 255, 255), category=dpg.mvThemeCat_Plots)
@@ -66,14 +66,12 @@ class PrimaryView():
                             xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Data / Hora", tag="eixo_x", time=True)
                             yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag="eixo_y")
 
-
-
-        dpg.bind_item_theme("Primary Window", self._colors)
+    
+    def run(self):
+        dpg.bind_item_theme("Primary Window", self.colors())
         dpg.create_viewport(title='Analise Grafica', width=1000, height=600)
         dpg.setup_dearpygui()
         dpg.show_viewport()
         dpg.set_primary_window("Primary Window", True)
-    
-    def run(self):
         dpg.start_dearpygui()
         dpg.destroy_context()

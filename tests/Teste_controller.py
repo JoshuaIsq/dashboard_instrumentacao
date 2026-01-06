@@ -13,9 +13,9 @@ class Controller():
         model.create_timestamp()
         eixo_x, df_sensores = model.join_files()
 
-        # 3. Mandar desenhar na View (O momento da mágica)
         if eixo_x is not None:
             view.graph_plot(eixo_x, df_sensores)
+
 
 if __name__ == "__main__":
     # 2. Injeção de dependência: Passar a função do controller para a view
