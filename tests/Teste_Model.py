@@ -63,16 +63,4 @@ class Math():
     
 
 
-# -- Área de testes ----- #
-"""arquivo1 = 'C:/Users/joshua.marinho/Desktop/AngloAmerica/Logs AngloAmerican/411/LOG_1.txt'
-arquivo2 = "C:/Users/joshua.marinho/Desktop/AngloAmerica/Logs AngloAmerican/411/LOG_2.txt"
-a = LogImporter()
-a.import_file(arquivo1)
-a.create_timestamp()
-a.import_file(arquivo2)
-a.create_timestamp()
-resultado = a.join_files()
-"""
-
-
 
