@@ -11,7 +11,7 @@ class PrimaryView():
     def set_offset_callback(self, func):
         self.callback_offset_func = func
 
-    
+
     def run_offset_callback(self):
         if self.callback_offset_func:
             n_linhas = dpg.get_value("input_offset")
@@ -20,6 +20,7 @@ class PrimaryView():
 
     def set_callback(self, func):
         self.callback_archive = func
+
 
     def callback_checkbox(self, time, sensors):
         self.data_sensors = sensors
@@ -34,6 +35,7 @@ class PrimaryView():
             self.checkbox_tags[col] = tag
         self.update_graph()
 
+
     def update_graph(self, sender=None, app_data=None):
         if self.data_sensors is None:
             return
@@ -47,7 +49,6 @@ class PrimaryView():
         dpg.fit_axis_data("eixo_x")
         
 
-            
     def _select_source(self):
         with dpg.font_registry():
             default_font = dpg.add_font("C:\\Windows\\Fonts\\Arial.ttf", 20)
@@ -87,14 +88,20 @@ class PrimaryView():
             dpg.add_separator()
             with dpg.group(horizontal=True):
 
-                with dpg.group(horizontal=True):
-                    with dpg.group(horizontal=False):
-                        dpg.add_text("Ajuste de Offset:")
-                        dpg.add_input_int(default_value=0, width=90, tag="input_offset", min_value=0)
-                        dpg.add_spacer(height=5)
-                        dpg.add_button(label="Aplicar Offset", callback=self.run_offset_callback) 
+                class Button():
+                    def __init__(self, text: str, label:str,tag:str, is_float:bool = True):
+                        with dpg.group(horizontal=True):
+                            with dpg.group(horizontal=False):
+                                dpg.add_text(text)
+                                if is_float == True:
+                                    dpg.add_input_float(default_value=0, width=90, tag=tag, min_value=0)
+                                else:
+                                    dpg.add_input_int(default_value=0, width=90, tag=tag, min_value=0)
+                                dpg.add_spacer(height=5)
+                                dpg.add_button(label=label, callback=self.run_offset_callback) 
 
-
+                Button("Ajuste de offset", "aplicar offset", "input_offset", is_float=False )
+                
             with dpg.group(horizontal=True):
                 
                 #seletor de canais

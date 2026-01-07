@@ -3,6 +3,8 @@ import numpy as np
 import scipy as sp
 from scipy import signal
 
+
+
 class LogImporter():
 
     INDEX_COLUMN_TIME = [0, 1, 2, 3, 4, 5]
