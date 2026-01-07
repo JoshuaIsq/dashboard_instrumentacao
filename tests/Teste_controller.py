@@ -21,18 +21,13 @@ class Controller():
             self.view.callback_checkbox(self.eixo_x, self.df_sensores)
     
     
-
     def apply_offset(self, n_linhas):
         if self.df_sensores is None:
             print("Nenhum arquivo carregado para aplicar offset.")
             return
-
-        print(f"Aplicando offset usando média das primeiras {n_linhas} linhas...")
-
+        print(f"Aplicando offset")
         math_tool = Teste_Model.Math(self.eixo_x, self.df_sensores.copy())
-        
         df_com_offset = math_tool.adjust_offset(n_linhas)
-
         self.df_sensores = df_com_offset
         self.view.callback_checkbox(self.eixo_x, df_com_offset)
 

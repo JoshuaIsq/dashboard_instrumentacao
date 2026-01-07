@@ -58,13 +58,15 @@ class PrimaryView():
         with dpg.theme() as theme:
             with dpg.theme_component(dpg.mvAll):
                 dpg.add_theme_color(dpg.mvPlotCol_PlotBg, (255, 255, 255, 255), category=dpg.mvThemeCat_Plots)
-                dpg.add_theme_color(dpg.mvThemeCol_WindowBg, (211, 211, 211))
+                dpg.add_theme_color(dpg.mvThemeCol_WindowBg, (100, 149, 237))
                 dpg.add_theme_color(dpg.mvThemeCol_ChildBg, (220, 220, 220))
                 dpg.add_theme_color(dpg.mvThemeCol_PopupBg, (255, 255, 255, 255))
                 dpg.add_theme_color(dpg.mvThemeCol_Text, (0, 0, 0))
                 dpg.add_theme_color(dpg.mvThemeCol_Button, (220, 220, 220))
                 dpg.add_theme_color(dpg.mvThemeCol_FrameBg, (255, 255, 255))
                 dpg.add_theme_color(dpg.mvThemeCol_Border, (0, 0, 0))
+                dpg.add_theme_style(dpg.mvStyleVar_FrameBorderSize, 0.3)
+                dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 4)
         return theme
     
     
@@ -79,18 +81,18 @@ class PrimaryView():
 
         #janela principal
         with dpg.window(tag="Primary Window"):
-            dpg.add_text("Vizualizador de dados de instrumentação", color=(0, 0, 0),)
+            dpg.add_text("Dashboard instrumentação", color=(0, 0, 0),)
             dpg.add_spacer(width=50)
             dpg.add_button(label='Selecionar arquivo', callback=lambda: dpg.show_item('file_dialog_id'))
-
+            dpg.add_separator()
             with dpg.group(horizontal=True):
 
                 with dpg.group(horizontal=True):
                     with dpg.group(horizontal=False):
                         dpg.add_text("Ajuste de Offset:")
                         dpg.add_input_int(default_value=0, width=90, tag="input_offset", min_value=0)
-                        dpg.add_spacer(height=20)
-                        dpg.add_button(label="Aplicar Offset", callback=self.run_offset_callback) #criação do botão, desenvolver a função
+                        dpg.add_spacer(height=5)
+                        dpg.add_button(label="Aplicar Offset", callback=self.run_offset_callback) 
 
 
             with dpg.group(horizontal=True):
@@ -104,11 +106,10 @@ class PrimaryView():
                 dpg.add_spacer(width=15)
 
                 with dpg.group(horizontal=True):
-                        with dpg.child_window(width=1265, height=-1, border=True):
-                            with dpg.plot(label="Extensômetros superiores", height=-1, width=1250, query=True):
-                                dpg.add_plot_legend()
-                                xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Data / Hora", tag="eixo_x", time=True)
-                                yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag="eixo_y")
+                        with dpg.plot(label="Extensômetros superiores", height=-1, width=1250, query=True):
+                            dpg.add_plot_legend()
+                            xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Data / Hora", tag="eixo_x", time=True)
+                            yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag="eixo_y")
 
     
     def run(self):
