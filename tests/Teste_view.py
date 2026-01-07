@@ -1,9 +1,6 @@
 import dearpygui.dearpygui as dpg
-import pandas as pd
-import Teste_Model 
 
-acesso = Teste_Model.LogImporter()
-
+"""n_offset = dpg.get_value("input_offset")"""
 
 class PrimaryView():
 
@@ -76,6 +73,16 @@ class PrimaryView():
             dpg.add_text("Vizualizador de dados de instrumentação", color=(0, 0, 0),)
             dpg.add_spacer(width=50)
             dpg.add_button(label='Selecionar arquivo', callback=lambda: dpg.show_item('file_dialog_id'))
+
+            with dpg.group(horizontal=True):
+
+                with dpg.group(horizontal=True):
+                    with dpg.group(horizontal=False):
+                        dpg.add_text("Ajuste de Offset:")
+                        dpg.add_input_int(default_value=0, width=90, tag="input_offset", min_value=0)
+                        dpg.add_spacer(height=20)
+                        #dpg.add_button(label="Aplicar Offset", callback=processar_e_plotar)
+
 
             with dpg.group(horizontal=True):
                 dpg.add_separator()
