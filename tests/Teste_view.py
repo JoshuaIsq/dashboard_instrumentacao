@@ -1,13 +1,21 @@
 import dearpygui.dearpygui as dpg
 
-"""n_offset = dpg.get_value("input_offset")"""
-
 class PrimaryView():
 
     def __init__(self):
         self.callback_archive = None 
         self.data_sensors = None
         self.data_time = None
+        self.callback_offset_func = None 
+
+    def set_offset_callback(self, func):
+        self.callback_offset_func = func
+
+    
+    def run_offset_callback(self):
+        if self.callback_offset_func:
+            n_linhas = dpg.get_value("input_offset")
+            self.callback_offset_func(n_linhas)
 
 
     def set_callback(self, func):
@@ -37,11 +45,12 @@ class PrimaryView():
 
         dpg.fit_axis_data("eixo_y")
         dpg.fit_axis_data("eixo_x")
+        
 
             
     def _select_source(self):
         with dpg.font_registry():
-            default_font = dpg.add_font("C:\\Windows\\Fonts\\Times.ttf", 20)
+            default_font = dpg.add_font("C:\\Windows\\Fonts\\Arial.ttf", 20)
         dpg.bind_font(default_font)
 
 
@@ -49,11 +58,11 @@ class PrimaryView():
         with dpg.theme() as theme:
             with dpg.theme_component(dpg.mvAll):
                 dpg.add_theme_color(dpg.mvPlotCol_PlotBg, (255, 255, 255, 255), category=dpg.mvThemeCat_Plots)
-                dpg.add_theme_color(dpg.mvThemeCol_WindowBg, (255, 0, 0, 255))
-                dpg.add_theme_color(dpg.mvThemeCol_ChildBg, (128, 128, 128, 255))
+                dpg.add_theme_color(dpg.mvThemeCol_WindowBg, (211, 211, 211))
+                dpg.add_theme_color(dpg.mvThemeCol_ChildBg, (220, 220, 220))
                 dpg.add_theme_color(dpg.mvThemeCol_PopupBg, (255, 255, 255, 255))
                 dpg.add_theme_color(dpg.mvThemeCol_Text, (0, 0, 0))
-                dpg.add_theme_color(dpg.mvThemeCol_Button, (200, 200, 200, 255))
+                dpg.add_theme_color(dpg.mvThemeCol_Button, (220, 220, 220))
                 dpg.add_theme_color(dpg.mvThemeCol_FrameBg, (255, 255, 255))
                 dpg.add_theme_color(dpg.mvThemeCol_Border, (0, 0, 0))
         return theme
@@ -81,11 +90,10 @@ class PrimaryView():
                         dpg.add_text("Ajuste de Offset:")
                         dpg.add_input_int(default_value=0, width=90, tag="input_offset", min_value=0)
                         dpg.add_spacer(height=20)
-                        #dpg.add_button(label="Aplicar Offset", callback=processar_e_plotar)
+                        dpg.add_button(label="Aplicar Offset", callback=self.run_offset_callback) #criação do botão, desenvolver a função
 
 
             with dpg.group(horizontal=True):
-                dpg.add_separator()
                 
                 #seletor de canais
                 with dpg.child_window(width=200, height=-1):
@@ -93,12 +101,14 @@ class PrimaryView():
                     dpg.add_separator()
                     dpg.add_group(tag="grupo_lista_canais")
                        
-                #gráfico plotado
+                dpg.add_spacer(width=15)
+
                 with dpg.group(horizontal=True):
-                        with dpg.plot(label="Extensômetros superiores", height=-1, width=-1, query=True,):
-                            dpg.add_plot_legend()
-                            xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Data / Hora", tag="eixo_x", time=True)
-                            yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag="eixo_y")
+                        with dpg.child_window(width=1265, height=-1, border=True):
+                            with dpg.plot(label="Extensômetros superiores", height=-1, width=1250, query=True):
+                                dpg.add_plot_legend()
+                                xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Data / Hora", tag="eixo_x", time=True)
+                                yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag="eixo_y")
 
     
     def run(self):
