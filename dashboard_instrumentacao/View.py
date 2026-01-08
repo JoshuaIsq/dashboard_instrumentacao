@@ -1,16 +1,25 @@
 import dearpygui.dearpygui as dpg
 
-
 class PrimaryView():
+
+    #Funções que conectam a view com a  Model e Controller
 
     def __init__(self):
         self.callback_archive = None 
         self.data_sensors = None
         self.data_time = None
+        self.callback_offset_func = None 
 
+   
+    def set_callback(self, func1, func2):
+        self.callback_archive = func1
+        self.callback_offset_func = func2
 
-    def set_callback(self, func):
-        self.callback_archive = func
+    def run_offset_callback(self):
+        if self.callback_offset_func:
+            n_linhas = dpg.get_value("input_offset")
+            self.callback_offset_func(n_linhas)
+
 
     def callback_checkbox(self, time, sensors):
         self.data_sensors = sensors
@@ -25,6 +34,7 @@ class PrimaryView():
             self.checkbox_tags[col] = tag
         self.update_graph()
 
+
     def update_graph(self, sender=None, app_data=None):
         if self.data_sensors is None:
             return
@@ -36,11 +46,12 @@ class PrimaryView():
 
         dpg.fit_axis_data("eixo_y")
         dpg.fit_axis_data("eixo_x")
+        
 
-            
+    #Funções que cuidam do design da interface
     def _select_source(self):
         with dpg.font_registry():
-            default_font = dpg.add_font("C:\\Windows\\Fonts\\Times.ttf", 20)
+            default_font = dpg.add_font("C:\\Windows\\Fonts\\Arial.ttf", 20)
         dpg.bind_font(default_font)
 
 
@@ -48,14 +59,27 @@ class PrimaryView():
         with dpg.theme() as theme:
             with dpg.theme_component(dpg.mvAll):
                 dpg.add_theme_color(dpg.mvPlotCol_PlotBg, (255, 255, 255, 255), category=dpg.mvThemeCat_Plots)
-                dpg.add_theme_color(dpg.mvThemeCol_WindowBg, (255, 0, 0, 255))
-                dpg.add_theme_color(dpg.mvThemeCol_ChildBg, (128, 128, 128, 255))
+                dpg.add_theme_color(dpg.mvThemeCol_WindowBg, (100, 149, 237))
+                dpg.add_theme_color(dpg.mvThemeCol_ChildBg, (220, 220, 220))
                 dpg.add_theme_color(dpg.mvThemeCol_PopupBg, (255, 255, 255, 255))
                 dpg.add_theme_color(dpg.mvThemeCol_Text, (0, 0, 0))
-                dpg.add_theme_color(dpg.mvThemeCol_Button, (200, 200, 200, 255))
+                dpg.add_theme_color(dpg.mvThemeCol_Button, (220, 220, 220))
                 dpg.add_theme_color(dpg.mvThemeCol_FrameBg, (255, 255, 255))
                 dpg.add_theme_color(dpg.mvThemeCol_Border, (0, 0, 0))
+                dpg.add_theme_style(dpg.mvStyleVar_FrameBorderSize, 0.3)
+                dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 4)
         return theme
+    
+    def _button(self, text: str, label:str,tag:str, is_float:bool = True):
+        with dpg.group(horizontal=True):
+            with dpg.group(horizontal=False):
+                dpg.add_text(text)
+                if is_float == True:
+                    dpg.add_input_float(default_value=0, width=90, tag=tag, min_value=0)
+                else:
+                    dpg.add_input_int(default_value=0, width=90, tag=tag, min_value=0)
+                dpg.add_spacer(height=5)
+                dpg.add_button(label=label, callback=self.run_offset_callback) 
     
     
     def build_window(self):
@@ -69,12 +93,15 @@ class PrimaryView():
 
         #janela principal
         with dpg.window(tag="Primary Window"):
-            dpg.add_text("Vizualizador de dados de instrumentação", color=(0, 0, 0),)
+            dpg.add_text("Dashboard instrumentação", color=(0, 0, 0),)
             dpg.add_spacer(width=50)
             dpg.add_button(label='Selecionar arquivo', callback=lambda: dpg.show_item('file_dialog_id'))
-
+            dpg.add_separator()
             with dpg.group(horizontal=True):
-                dpg.add_separator()
+
+                self._button("Ajuste de offset", "aplicar offset", "input_offset", is_float=False )
+                
+            with dpg.group(horizontal=True):
                 
                 #seletor de canais
                 with dpg.child_window(width=200, height=-1):
@@ -82,9 +109,10 @@ class PrimaryView():
                     dpg.add_separator()
                     dpg.add_group(tag="grupo_lista_canais")
                        
-                #gráfico plotado
+                dpg.add_spacer(width=15)
+
                 with dpg.group(horizontal=True):
-                        with dpg.plot(label="Extensômetros superiores", height=-1, width=-1, query=True,):
+                        with dpg.plot(label="Extensômetros superiores", height=-1, width=1250, query=True):
                             dpg.add_plot_legend()
                             xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Data / Hora", tag="eixo_x", time=True)
                             yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag="eixo_y")

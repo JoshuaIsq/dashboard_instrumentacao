@@ -1,30 +1,44 @@
- Acho interessante substituir esse bloco de marcar todos por 4 botoes que marcam os sensores
-correspondentes a cada tipo de medida, porém isso pode variar de medição para medição, então somente 
-retirar o toggle all por hora 
+1. Comecemos na view "set_callback e botões" (assim que os botões todos funcionarão, e depois os callbacks voltam lá na criação dele)
 
-- 30/12/2025 
+    a função init possui 4 variaveis 
+    a que chama o arqwuivo, sensores, datas e o offset
 
-Tambem acho bacana antes do gráfico aparecer vocÊ poder colocar o nome que deseja nos eixos Y e no nome do gráfico
-Tanto de tendencia quanto de deformação e tensão
+    a função set_offset_callback, faz com que nossa variavel de offset seja abastecida com uma func
+    a função set_offset_callback é chamada lá na nossa main, e é passada como argumento a controller.apply_offset
+    ou seja, nossa func é a controller.apply_offset 
 
--30/12/2025
+    a função apply offset é quem de fato aplica o offset no nosso código
+    ela pega a classe Math da Model e lá adiciona os sensores e o tempo
+    ela logo após isso pega essa váriavel e ajusta pro offset especificadamente
+    salva isso na self.df_sensores que foi criada lá na nossa controller como vazia
 
-É possível que ao inves de eu usar uma classe datastorage
-essa classe seja abastecida com os dados do dataframe
-ela seja a main e eu alimente aquelas listas e depois simplesmente as retorno lá embaixo
-avaliar essa possibilidade, pois aquelas listas não podem ser modificadas fora da própria classe
-ou seja precisamos usar encapsulamento para consertar a situação alimente
+    temos depois a função run_offset_callback
+    ela avalia se tem alguma coisa naquela função 
+    como tem, ela pega um valor que é o valor digitado e abastece esse valor como o numero de linhas
+    que lá voltando na apply offset, é onde esse valor é aplicado la na math e assim tudo funciona bem
 
--30/12/2025
+    ESSE PROCESSO SE REPETE PARA CADA BOTÃO QUE FOR ADICIONADO
 
-Avaliar a possibilidade de como reduzir o tempo de importação e concatenação de arquivos
-Sobre dicionarios
-Acho mais valido usar as listas para armazenar os sensores e timestamps
-Porém depende
-posso ter 18 keys (timestamps)
-e cada key vai ter 16 values
-Ver sobre isso Tambem
+    levando isso em conta a primeira tarefa do dia é ver se pra evitar a criação de muitas funções
+    se é valido eu colocar as funções dentro uma da outra
 
--30/12/2025
+    CONSEGUI
 
-Fazer toda a parte de importação como uma associação, tanto da calibração quanto da importação e uso de database
+    O teste será criar um segundo botão, e dai veremos se eu consigo colocar tudo na mesma função
+    ou se tem que ser separado.
+    
+2. Prosseguindo na view veremos agora a seleção de arquivos "callback_checkbox" e atualização das checkbox
+    ela abastace tanto os dados de sensores quanto de tempo que estão vazios na init com sensors e time
+    ela recebe esses dados da controller, tanto do offset quanto da seleção de arquivos (select_archive)
+    na controller temos a função select_archive, que é quem pega os dados de timestamp e sensores na model 
+    e abastece lá na atualização de checkbox
+    ela cria a tag de checkbox
+    e abastece essa tag com o valor de cada coluna do gráfico
+    pegando um callback da função update_graph
+
+    QUE É A PROXIMA A SER ESTUDADA
+
+3. A função "update_Graph" ainda na view
+    essa função atualiza o gráfico toda vez que eu faço uma nova adição naquela
+
+A partir daqui a view começa a construção de design

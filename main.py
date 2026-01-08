@@ -1,16 +1,20 @@
-# Arquivo: main.py
 import sys
 import os
 
+sys.path.append(os.getcwd())
 
+
+from dashboard_instrumentacao.Model import LogImporter
+from dashboard_instrumentacao.View import PrimaryView
+from dashboard_instrumentacao.Controller import Controller
 
 def main():
-    model = Model.LogImporter()
-    view = View.PrimaryView()
-    controller = Controller.Controller(model, view)
-   
-    # 3. Conectar o callback (Injeção de dependência)
-    view.set_callback(controller.select_archive)
+    model = LogImporter()
+    view = PrimaryView()
+    controller = Controller(model, view)
+
+    view.set_callback(controller.select_archive, controller.apply_offset)
+
     view.build_window()
     view.run()
 
