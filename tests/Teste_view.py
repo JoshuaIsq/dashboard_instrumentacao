@@ -70,6 +70,17 @@ class PrimaryView():
                 dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 4)
         return theme
     
+    def _button(self, text: str, label:str,tag:str, is_float:bool = True):
+        with dpg.group(horizontal=True):
+            with dpg.group(horizontal=False):
+                dpg.add_text(text)
+                if is_float == True:
+                    dpg.add_input_float(default_value=0, width=90, tag=tag, min_value=0)
+                else:
+                    dpg.add_input_int(default_value=0, width=90, tag=tag, min_value=0)
+                dpg.add_spacer(height=5)
+                dpg.add_button(label=label, callback=self.run_offset_callback) 
+    
     
     def build_window(self):
         dpg.create_context()
@@ -88,19 +99,7 @@ class PrimaryView():
             dpg.add_separator()
             with dpg.group(horizontal=True):
 
-                class Button():
-                    def __init__(self, text: str, label:str,tag:str, is_float:bool = True):
-                        with dpg.group(horizontal=True):
-                            with dpg.group(horizontal=False):
-                                dpg.add_text(text)
-                                if is_float == True:
-                                    dpg.add_input_float(default_value=0, width=90, tag=tag, min_value=0)
-                                else:
-                                    dpg.add_input_int(default_value=0, width=90, tag=tag, min_value=0)
-                                dpg.add_spacer(height=5)
-                                dpg.add_button(label=label, callback=self.run_offset_callback) 
-
-                Button("Ajuste de offset", "aplicar offset", "input_offset", is_float=False )
+                self._button("Ajuste de offset", "aplicar offset", "input_offset", is_float=False )
                 
             with dpg.group(horizontal=True):
                 
