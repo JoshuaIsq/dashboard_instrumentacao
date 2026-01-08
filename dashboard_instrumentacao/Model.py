@@ -66,5 +66,30 @@ class Math():
         self.sensor_axe = self.sensor_axe - adjust
 
         return self.sensor_axe
-        
+    
+    def indentify_outliers(self, window, thresh=3, verbose=False):
+        self.sensor_axe = self.sensor_axe.copy()
+        outlier_mask = pd.DataFrame(False, index=self.sensor_axe.index, columns=self.sensor_axe.columns)
+        for col in self.sensor_axe.columns:
+            series = self.sensor_axe[col]
+            rolling_mean = series.rolling(window=window, min_periods=1).mean()
+            rolling_std = series.rolling(window=window, min_periods=1).std()
+            z_scores = (series - rolling_mean) / rolling_std
+            outliers = np.abs(z_scores) > thresh
+            outlier_mask[col] = outliers
+            if verbose:
+                    print(f"[INFO] Coluna: {col}")
+                    print(f"       Média: {series.mean():.2f}, Desvio padrão: {series.std():.2f}")
+                    print(f"       Outliers detectados: {outliers.sum()} de {len(series)}\n")
+
+        return outlier_mask
+    
+    def remove_outliers(self, window, thresh=3, verbose=False):
+        self.sensor_axe = self.sensor_axe.copy() #Ficar de olho nessas copias
+        outlier_mask = self.indentify_outliers(window, thresh, verbose)
+        self.sensor_axe = self.sensor_axe.mask(outlier_mask)
+        self.sensor_axe = self.sensor_axe.interpolate(method='linear', limit_direction='both').fillna(0)
+
+        return self.sensor_axe.round(4)
+            
     
