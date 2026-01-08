@@ -13,7 +13,7 @@ def main():
     view = PrimaryView()
     controller = Controller(model, view)
 
-    view.set_callback(controller.select_archive, controller.apply_offset)
+    view.set_callback(controller.select_archive, controller.apply_offset, controller.apply_outliers)
 
     view.build_window()
     view.run()

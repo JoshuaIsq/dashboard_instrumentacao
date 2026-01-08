@@ -9,16 +9,24 @@ class PrimaryView():
         self.data_sensors = None
         self.data_time = None
         self.callback_offset_func = None 
+        self.callback_outliers = None
 
    
-    def set_callback(self, func1, func2):
-        self.callback_archive = func1
-        self.callback_offset_func = func2
+    def set_callback(self, archive, offset, outliers):
+        self.callback_archive = archive
+        self.callback_offset_func = offset
+        self.callback_outliers = outliers
 
     def run_offset_callback(self):
         if self.callback_offset_func:
             n_linhas = dpg.get_value("input_offset")
             self.callback_offset_func(n_linhas)
+    
+    def run_outliers_Callback(self):
+        if self.callback_outliers:
+            remove_out = dpg.get_value("input_outliers")
+            self.callback_outliers(window=remove_out, thresh=3, verbose=False)
+            
 
 
     def callback_checkbox(self, time, sensors):
@@ -70,7 +78,7 @@ class PrimaryView():
                 dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 4)
         return theme
     
-    def _button(self, text: str, label:str,tag:str, is_float:bool = True):
+    def _button(self, text: str, label:str,tag:str, callbacks, is_float:bool = True, ):
         with dpg.group(horizontal=True):
             with dpg.group(horizontal=False):
                 dpg.add_text(text)
@@ -79,7 +87,7 @@ class PrimaryView():
                 else:
                     dpg.add_input_int(default_value=0, width=90, tag=tag, min_value=0)
                 dpg.add_spacer(height=5)
-                dpg.add_button(label=label, callback=self.run_offset_callback) 
+                dpg.add_button(label=label, callback=callbacks) 
     
     
     def build_window(self):
@@ -99,8 +107,9 @@ class PrimaryView():
             dpg.add_separator()
             with dpg.group(horizontal=True):
 
-                self._button("Ajuste de offset", "aplicar offset", "input_offset", is_float=False )
-                
+                self._button("Ajuste de offset", "Aplicar offset", "input_offset",callbacks=self.run_offset_callback, is_float=False)
+                self._button("Remoção de outliers", "Remover outliers", "input_outliers", callbacks=self.run_outliers_Callback, is_float=False)
+
             with dpg.group(horizontal=True):
                 
                 #seletor de canais

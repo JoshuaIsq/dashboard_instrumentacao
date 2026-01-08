@@ -31,3 +31,8 @@ class Controller():
         self.df_sensores = df_com_offset
         self.view.callback_checkbox(self.eixo_x, df_com_offset)
 
+    def apply_outliers(self, window, thresh=3, verbose=False):
+        math_tool = Math(self.eixo_x, self.df_sensores.copy())
+        outlier_removed = math_tool.remove_outliers(window, thresh=3, verbose=False)
+        self.df_sensores = outlier_removed
+        self.view.callback_checkbox(self.eixo_x, outlier_removed)
