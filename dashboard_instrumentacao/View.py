@@ -14,10 +14,16 @@ class PrimaryView():
         self.TAG_PLOT_NEW_TITLE = "Extensômetros superiores"
         self.TAG_PLOT_NEW_Y = "Deslocamento (mm)"
 
-    def set_callback(self, archive, offset, outliers):
+    def set_callback(self, archive, offset, outliers, average):
         self.callback_archive = archive
         self.callback_offset_func = offset
         self.callback_outliers = outliers
+        self.callback_move_average = average
+
+    def run_move_average_callback(self):
+        if self.callback_move_average:
+            sesh = dpg.get_value("input_moving_average")
+            self.callback_move_average(sesh)            
 
     def run_offset_callback(self):
         if self.callback_offset_func:
@@ -53,13 +59,13 @@ class PrimaryView():
     def update_graph(self, sender=None, app_data=None):
         if self.data_sensors is None:
             return
-        dpg.delete_item("eixo_y", children_only=True)
+        dpg.delete_item(self.TAG_PLOT_Y, children_only=True)
         for col_name, tag_id in self.checkbox_tags.items():
             if dpg.get_value(tag_id): 
                 axe_y = self.data_sensors[col_name].tolist()
-                dpg.add_line_series(self.data_time, axe_y, label=str(col_name-5), parent="eixo_y")
+                dpg.add_line_series(self.data_time, axe_y, label=str(col_name-5), parent=self.TAG_PLOT_Y)
 
-        dpg.fit_axis_data("eixo_y")
+        dpg.fit_axis_data(self.TAG_PLOT_Y)
         dpg.fit_axis_data("eixo_x")
         
     def _button_config(self, text: str, label:str,tag:str, callbacks, is_float:bool = True, ):
@@ -84,7 +90,8 @@ class PrimaryView():
             self._button_config("Ajuste de offset", "Aplicar offset", "input_offset",callbacks=self.run_offset_callback, is_float=False)
             dpg.add_spacer(width=20)
             self._button_config("Remoção de outliers", "Remover outliers", "input_outliers", callbacks=self.run_outliers_Callback, is_float=False)
-    
+            dpg.add_spacer(width=20)
+            self._button_config("Média Movel", "Aplicar média movel", "input_moving_average", callbacks=self.run_move_average_callback, is_float=True)
     
     def _chanel_list(self):
         with dpg.group(horizontal=False):
@@ -104,28 +111,15 @@ class PrimaryView():
     
     def _build_sidebar(self):
         with dpg.group(horizontal=False):
-            
-            # ... (seus botões de offset e outliers anteriores) ...
-            
             dpg.add_separator()
             dpg.add_text("Configurações Visuais:")
-            
-            # Input do Título do Gráfico
             dpg.add_input_text(label="Título", tag=self.TAG_PLOT_NEW_TITLE, default_value="Extensômetros", width=120)
-            
-            # Input do Eixo Y
             dpg.add_input_text(label="Nome Eixo Y", tag=self.TAG_PLOT_NEW_Y, default_value="Deslocamento (mm)", width=120)
-            
             dpg.add_spacer(height=5)
-            
-            # Botão para aplicar
             dpg.add_button(label="Atualizar Títulos", callback=self.update_titles)
-            
+    
             dpg.add_separator()
             dpg.add_spacer(height=10)
-
-            # ... (seu código da lista de canais continua aqui) ...
-
 
     def build_window(self):
         dpg.create_context()

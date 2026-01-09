@@ -94,5 +94,10 @@ class Math():
         self.sensor_axe = self.sensor_axe.interpolate(method='linear', limit_direction='both').fillna(0)
 
         return self.sensor_axe.round(4)
-            
-    
+        
+    def moving_average(self, sash):
+        self.sensor_axe = self.sensor_axe.copy() 
+        self.sensor_axe = self.sen.rolling(window=int(sash), min_periods=1).mean() 
+
+        return self.sensor_axe.round(4)
+        
