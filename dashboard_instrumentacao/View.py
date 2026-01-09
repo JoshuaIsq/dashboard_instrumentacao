@@ -9,6 +9,11 @@ class PrimaryView():
         self.callback_offset_func = None 
         self.callback_outliers = None
 
+        self.TAG_PLOT_TITLE = "graph title"
+        self.TAG_PLOT_Y = "axe_y_title"
+        self.TAG_PLOT_NEW_TITLE = "Extensômetros superiores"
+        self.TAG_PLOT_NEW_Y = "Deslocamento (mm)"
+
     def set_callback(self, archive, offset, outliers):
         self.callback_archive = archive
         self.callback_offset_func = offset
@@ -37,6 +42,13 @@ class PrimaryView():
             self.checkbox_tags[col] = tag
         self.update_graph()
 
+    def update_titles(self):
+        new_title = dpg.get_value(self.TAG_PLOT_NEW_TITLE)
+        new_axeY = dpg.get_value(self.TAG_PLOT_NEW_Y)
+        if dpg.does_item_exist(self.TAG_PLOT_TITLE):
+            dpg.set_item_label(self.TAG_PLOT_TITLE, new_title)
+        if dpg.does_item_exist(self.TAG_PLOT_Y):
+                    dpg.set_item_label(self.TAG_PLOT_Y, new_axeY)
 
     def update_graph(self, sender=None, app_data=None):
         if self.data_sensors is None:
@@ -85,10 +97,34 @@ class PrimaryView():
     
     def _plot_area(self):
         with dpg.group(horizontal=True):
-            with dpg.plot(label="Extensômetros superiores", height=-1, width=1250, query=True):
+            with dpg.plot(label="Extensômetros superiores", height=-1, width=1250, query=True, tag=self.TAG_PLOT_TITLE):
                 dpg.add_plot_legend()
                 xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Data / Hora", tag="eixo_x", time=True)
-                yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag="eixo_y")
+                yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag=self.TAG_PLOT_Y)
+    
+    def _build_sidebar(self):
+        with dpg.group(horizontal=False):
+            
+            # ... (seus botões de offset e outliers anteriores) ...
+            
+            dpg.add_separator()
+            dpg.add_text("Configurações Visuais:")
+            
+            # Input do Título do Gráfico
+            dpg.add_input_text(label="Título", tag=self.TAG_PLOT_NEW_TITLE, default_value="Extensômetros", width=120)
+            
+            # Input do Eixo Y
+            dpg.add_input_text(label="Nome Eixo Y", tag=self.TAG_PLOT_NEW_Y, default_value="Deslocamento (mm)", width=120)
+            
+            dpg.add_spacer(height=5)
+            
+            # Botão para aplicar
+            dpg.add_button(label="Atualizar Títulos", callback=self.update_titles)
+            
+            dpg.add_separator()
+            dpg.add_spacer(height=10)
+
+            # ... (seu código da lista de canais continua aqui) ...
 
 
     def build_window(self):
@@ -104,6 +140,7 @@ class PrimaryView():
         with dpg.window(tag="Primary Window"):
             self._main_window()
             self._button_play()
+            self._build_sidebar()
             dpg.add_separator()
             dpg.add_spacer(height=10)
             with dpg.group(horizontal=True):
