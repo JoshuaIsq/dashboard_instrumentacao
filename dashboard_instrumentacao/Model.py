@@ -35,6 +35,9 @@ class LogImporter():
         timestamp = pd.to_datetime(self.df_timestamp) 
         df_temp = pd.DataFrame({'timestamp': timestamp}) #O que é indice temporal
         sensors = self.df_sensors.iloc[:, 6:] #O que são sensores
+        for col in sensors.columns:
+            sensors[col] = pd.to_numeric(sensors[col], errors='coerce')
+        sensors = sensors.fillna(0.0)
         self.df_full = pd.concat([df_temp, sensors], axis=1) #Os juntando como 1 coluna de timestamp e o resto de sensor
         self.df_joined_files.append(self.df_full) #Os colocando em uma lista que juntará todos arquivos
         print(f"Total de {len(self.df_joined_files)} arquivos adicionados") 
