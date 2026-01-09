@@ -1,9 +1,7 @@
 import dearpygui.dearpygui as dpg
+from .Theme import Theme
 
 class PrimaryView():
-
-    #Funções que conectam a view com a  Model e Controller
-
     def __init__(self):
         self.callback_archive = None 
         self.data_sensors = None
@@ -11,7 +9,6 @@ class PrimaryView():
         self.callback_offset_func = None 
         self.callback_outliers = None
 
-   
     def set_callback(self, archive, offset, outliers):
         self.callback_archive = archive
         self.callback_offset_func = offset
@@ -27,8 +24,6 @@ class PrimaryView():
             remove_out = dpg.get_value("input_outliers")
             self.callback_outliers(window=remove_out, thresh=3, verbose=False)
             
-
-
     def callback_checkbox(self, time, sensors):
         self.data_sensors = sensors
         self.data_time = time
@@ -55,30 +50,7 @@ class PrimaryView():
         dpg.fit_axis_data("eixo_y")
         dpg.fit_axis_data("eixo_x")
         
-
-    #Funções que cuidam do design da interface
-    def _select_source(self):
-        with dpg.font_registry():
-            default_font = dpg.add_font("C:\\Windows\\Fonts\\Arial.ttf", 20)
-        dpg.bind_font(default_font)
-
-
-    def colors(self):
-        with dpg.theme() as theme:
-            with dpg.theme_component(dpg.mvAll):
-                dpg.add_theme_color(dpg.mvPlotCol_PlotBg, (255, 255, 255, 255), category=dpg.mvThemeCat_Plots)
-                dpg.add_theme_color(dpg.mvThemeCol_WindowBg, (100, 149, 237))
-                dpg.add_theme_color(dpg.mvThemeCol_ChildBg, (220, 220, 220))
-                dpg.add_theme_color(dpg.mvThemeCol_PopupBg, (255, 255, 255, 255))
-                dpg.add_theme_color(dpg.mvThemeCol_Text, (0, 0, 0))
-                dpg.add_theme_color(dpg.mvThemeCol_Button, (220, 220, 220))
-                dpg.add_theme_color(dpg.mvThemeCol_FrameBg, (255, 255, 255))
-                dpg.add_theme_color(dpg.mvThemeCol_Border, (0, 0, 0))
-                dpg.add_theme_style(dpg.mvStyleVar_FrameBorderSize, 0.3)
-                dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 4)
-        return theme
-    
-    def _button(self, text: str, label:str,tag:str, callbacks, is_float:bool = True, ):
+    def _button_config(self, text: str, label:str,tag:str, callbacks, is_float:bool = True, ):
         with dpg.group(horizontal=True):
             with dpg.group(horizontal=False):
                 dpg.add_text(text)
@@ -89,10 +61,39 @@ class PrimaryView():
                 dpg.add_spacer(height=5)
                 dpg.add_button(label=label, callback=callbacks) 
     
+    def _main_window(self):
+        dpg.add_text("Dashboard instrumentação", color=(0, 0, 0),)
+        dpg.add_spacer(width=50)
+        dpg.add_button(label='Selecionar arquivo', callback=lambda: dpg.show_item('file_dialog_id'))
+        dpg.add_separator()
     
+    def _button_play(self):
+        with dpg.group(horizontal=True):
+            self._button_config("Ajuste de offset", "Aplicar offset", "input_offset",callbacks=self.run_offset_callback, is_float=False)
+            dpg.add_spacer(width=20)
+            self._button_config("Remoção de outliers", "Remover outliers", "input_outliers", callbacks=self.run_outliers_Callback, is_float=False)
+    
+    
+    def _chanel_list(self):
+        with dpg.group(horizontal=False):
+            with dpg.child_window(width=200, height=-1):
+                dpg.add_text('Selecionar canais: ')
+                dpg.add_separator()
+                dpg.add_group(tag="grupo_lista_canais")
+                    
+            dpg.add_spacer(width=15)
+    
+    def _plot_area(self):
+        with dpg.group(horizontal=True):
+            with dpg.plot(label="Extensômetros superiores", height=-1, width=1250, query=True):
+                dpg.add_plot_legend()
+                xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Data / Hora", tag="eixo_x", time=True)
+                yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag="eixo_y")
+
+
     def build_window(self):
         dpg.create_context()
-        self._select_source()
+        Theme.font()
 
         #selecionar arquivo
         with dpg.file_dialog(directory_selector=False, show=False, callback=self.callback_archive, tag="file_dialog_id", width=700, height=400):
@@ -101,34 +102,18 @@ class PrimaryView():
 
         #janela principal
         with dpg.window(tag="Primary Window"):
-            dpg.add_text("Dashboard instrumentação", color=(0, 0, 0),)
-            dpg.add_spacer(width=50)
-            dpg.add_button(label='Selecionar arquivo', callback=lambda: dpg.show_item('file_dialog_id'))
+            self._main_window()
+            self._button_play()
             dpg.add_separator()
+            dpg.add_spacer(height=10)
             with dpg.group(horizontal=True):
+                self._chanel_list()
+                self._plot_area()
 
-                self._button("Ajuste de offset", "Aplicar offset", "input_offset",callbacks=self.run_offset_callback, is_float=False)
-                self._button("Remoção de outliers", "Remover outliers", "input_outliers", callbacks=self.run_outliers_Callback, is_float=False)
-
-            with dpg.group(horizontal=True):
-                
-                #seletor de canais
-                with dpg.child_window(width=200, height=-1):
-                    dpg.add_text('Selecionar canais: ')
-                    dpg.add_separator()
-                    dpg.add_group(tag="grupo_lista_canais")
-                       
-                dpg.add_spacer(width=15)
-
-                with dpg.group(horizontal=True):
-                        with dpg.plot(label="Extensômetros superiores", height=-1, width=1250, query=True):
-                            dpg.add_plot_legend()
-                            xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Data / Hora", tag="eixo_x", time=True)
-                            yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag="eixo_y")
 
     
     def run(self):
-        dpg.bind_item_theme("Primary Window", self.colors())
+        dpg.bind_item_theme("Primary Window", Theme.color())
         dpg.create_viewport(title='Analise Grafica', width=1000, height=600)
         dpg.setup_dearpygui()
         dpg.show_viewport()
