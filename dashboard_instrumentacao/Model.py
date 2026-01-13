@@ -97,7 +97,7 @@ class Math():
         
     def moving_average(self, sash):
         self.sensor_axe = self.sensor_axe.copy() 
-        self.sensor_axe = self.sen.rolling(window=int(sash), min_periods=1).mean() 
+        self.sensor_axe = self.sensor_axe.rolling(window=int(sash), min_periods=1).mean() 
 
         return self.sensor_axe.round(4)
         
