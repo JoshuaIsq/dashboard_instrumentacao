@@ -71,15 +71,27 @@ class PrimaryView():
     def update_graph(self, sender=None, app_data=None):
         if self.data_sensors is None:
             return
-        dpg.delete_item(self.TAG_PLOT_Y, children_only=True)
-        for col_name, tag_id in self.checkbox_tags.items():
+        if dpg.does_item_exist(self.TAG_PLOT_Y):
+            dpg.delete_item(self.TAG_PLOT_Y, children_only=True)
+        canais_ordenados = sorted(self.checkbox_tags.items())
+        for i, (col_name, tag_id) in enumerate(canais_ordenados):
             if dpg.get_value(tag_id): 
-                axe_y = self.data_sensors[col_name].tolist()
-                dpg.add_line_series(self.data_time, axe_y, label=str(col_name-5), parent=self.TAG_PLOT_Y)
+                y_data = self.data_sensors[col_name].tolist()
+                x_data = self.data_time
+                y_data = [0 if (val != val) else val for val in y_data]
+                label_nome = f"Sensor {col_name-5}" 
+                line_tag = dpg.add_line_series(
+                    x_data, 
+                    y_data, 
+                    label=label_nome, 
+                    parent=self.TAG_PLOT_Y
+                )
+                tema_da_linha = Theme.get_line_theme(i)
+                dpg.bind_item_theme(line_tag, tema_da_linha)
 
         dpg.fit_axis_data(self.TAG_PLOT_Y)
         dpg.fit_axis_data("eixo_x")
-        
+
     def _button_config(self, text: str, label:str,tag:str, callbacks, is_float:bool = True, ):
         with dpg.group(horizontal=True):
             with dpg.group(horizontal=False):
