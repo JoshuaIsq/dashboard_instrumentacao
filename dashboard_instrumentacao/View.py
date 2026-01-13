@@ -14,11 +14,17 @@ class PrimaryView():
         self.TAG_PLOT_NEW_TITLE = "Extensômetros superiores"
         self.TAG_PLOT_NEW_Y = "Deslocamento (mm)"
 
-    def set_callback(self, archive, offset, outliers, average):
+    def set_callback(self, archive, offset, outliers, average, calibration):
         self.callback_archive = archive
         self.callback_offset_func = offset
         self.callback_outliers = outliers
         self.callback_move_average = average
+        self.callback_calibration = calibration
+
+    def run_calibration_callback(self):
+        if self.callback_calibration:
+            factors = dpg.get_value("input_calibration_factors")  # Assuming you have an input for calibration factors
+            self.callback_calibration(factors)
 
     def run_move_average_callback(self):
         if self.callback_move_average:
@@ -73,9 +79,9 @@ class PrimaryView():
             with dpg.group(horizontal=False):
                 dpg.add_text(text)
                 if is_float == True:
-                    dpg.add_input_float(default_value=0, width=90, tag=tag, min_value=0)
+                    dpg.add_input_float(default_value=0, width=130, tag=tag, min_value=0)
                 else:
-                    dpg.add_input_int(default_value=0, width=90, tag=tag, min_value=0)
+                    dpg.add_input_int(default_value=0, width=130, tag=tag, min_value=0)
                 dpg.add_spacer(height=5)
                 dpg.add_button(label=label, callback=callbacks) 
     
@@ -87,12 +93,17 @@ class PrimaryView():
     
     def _button_play(self):
         with dpg.group(horizontal=True):
-            self._button_config("Ajuste de offset", "Aplicar offset", "input_offset",callbacks=self.run_offset_callback, is_float=False)
+            self._button_config("Ajuste de offset", "Aplicar offset", \
+                                "input_offset",callbacks=self.run_offset_callback, is_float=False)
             dpg.add_spacer(width=20)
-            self._button_config("Remoção de outliers", "Remover outliers", "input_outliers", callbacks=self.run_outliers_Callback, is_float=False)
+            self._button_config("Remoção de outliers", "Remover outliers", \
+                                "input_outliers", callbacks=self.run_outliers_Callback, is_float=False)
             dpg.add_spacer(width=20)
-            self._button_config("Média Movel", "Aplicar média movel", "input_moving_average", callbacks=self.run_move_average_callback, is_float=True)
-    
+            self._button_config("Média Movel", "Aplicar média movel", \
+                                "input_moving_average", callbacks=self.run_move_average_callback, is_float=True)
+            self._button_config("Fator de Calibração", "Aplicar calibração", \
+                                "input_calibration_factors", callbacks=self.run_calibration_callback, is_float=True)
+
     def _chanel_list(self):
         with dpg.group(horizontal=False):
             with dpg.child_window(width=200, height=-1):
@@ -108,6 +119,7 @@ class PrimaryView():
                 dpg.add_plot_legend()
                 xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Data / Hora", tag="eixo_x", time=True)
                 yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag=self.TAG_PLOT_Y)
+                dpg.set_axis_limits(self.TAG_PLOT_Y,-40,40)
     
     def _build_sidebar(self):
         with dpg.group(horizontal=False):
@@ -126,7 +138,8 @@ class PrimaryView():
         Theme.font()
 
         #selecionar arquivo
-        with dpg.file_dialog(directory_selector=False, show=False, callback=self.callback_archive, tag="file_dialog_id", width=700, height=400):
+        with dpg.file_dialog(directory_selector=False, show=False, callback=self.callback_archive, \
+                             tag="file_dialog_id", width=700, height=400):
             dpg.add_file_extension(".txt", color=(0, 255, 0, 255))
             dpg.add_file_extension(".*")
 

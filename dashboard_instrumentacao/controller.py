@@ -44,3 +44,9 @@ class Controller():
         move_avg = math_tool.moving_average(sesh)
         self.df_sensores = move_avg
         self.view.callback_checkbox(self.eixo_x, move_avg)
+    
+    def apply_calibration(self, factors):
+        math_tool = Math(self.eixo_x, self.df_sensores.copy())
+        calibrated_data = math_tool.calibration(factors)
+        self.df_sensores = calibrated_data
+        self.view.callback_checkbox(self.eixo_x, calibrated_data)

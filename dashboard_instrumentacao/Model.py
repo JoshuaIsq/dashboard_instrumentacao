@@ -101,3 +101,8 @@ class Math():
 
         return self.sensor_axe.round(4)
         
+    def calibration(self, factors):
+        self.sensor_axe = self.sensor_axe.copy()
+        self.sensor_axe = self.sensor_axe.multiply(factors, axis=1)
+
+        return self.sensor_axe.round(4)
