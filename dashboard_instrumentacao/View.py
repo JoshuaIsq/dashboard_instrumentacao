@@ -8,6 +8,7 @@ class PrimaryView():
         self.data_time = None
         self.callback_offset_func = None 
         self.callback_outliers = None
+        self.checkbox_tags = {}
 
         self.TAG_PLOT_TITLE = "graph title"
         self.TAG_PLOT_Y = "axe_y_title"
@@ -23,7 +24,7 @@ class PrimaryView():
 
     def run_calibration_callback(self):
         if self.callback_calibration:
-            factors = dpg.get_value("input_calibration_factors")  # Assuming you have an input for calibration factors
+            factors = dpg.get_value("input_calibration_factors")  
             self.callback_calibration(factors)
 
     def run_move_average_callback(self):
@@ -40,6 +41,11 @@ class PrimaryView():
         if self.callback_outliers:
             remove_out = dpg.get_value("input_outliers")
             self.callback_outliers(window=remove_out, thresh=3, verbose=False)
+
+    def update_plot(self, time, sensors):
+        self.data_sensors = sensors
+        self.data_time = time   
+        self.update_graph()
             
     def callback_checkbox(self, time, sensors):
         self.data_sensors = sensors
