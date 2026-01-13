@@ -12,6 +12,10 @@ class Controller():
         self.df_sensores = None
         self.eixo_x = None
     
+        self.config_offset = 0
+        self.config_outlier_window = 0
+        self.config_ma_window = 0
+        self.config_calibration = None
     
     def select_archive(self, sender, app_data):
         file_path = app_data['file_path_name']
@@ -22,34 +26,46 @@ class Controller():
         if self.eixo_x is not None:
             self.df_original = self.df_sensores.copy()
             self.view.callback_checkbox(self.eixo_x, self.df_sensores)
-    
-    
-    def apply_offset(self, n_linhas):
-        if self.df_sensores is None:
-            print("Nenhum arquivo carregado para aplicar offset.")
-            return
-        print(f"Aplicando offset")
-        math_tool = Math(self.eixo_x, self.df_original.copy())
-        df_com_offset = math_tool.adjust_offset(n_linhas)
-        self.df_sensores = df_com_offset
-        self.view.update_plot(self.eixo_x, df_com_offset)
 
+            self._process_pipeline()
+    
+    def _process_pipeline(self):
+        if self.df_original is None:
+            return
+
+        df_temp = self.df_original.copy()
+        math_tool = Math(self.eixo_x, df_temp)
+
+        if self.config_calibration:
+            df_temp = math_tool.calibration(self.config_calibration)
+            math_tool = Math(self.eixo_x, df_temp)
+        
+        if self.config_offset > 0:
+            df_temp = math_tool.adjust_offset(self.config_offset)
+        
+        if self.config_outlier_window > 0:
+            math_tool = Math(self.eixo_x, df_temp)
+            df_temp = math_tool.remove_outliers(self.config_outlier_window, thresh=3, verbose=False)
+
+        if self.config_ma_window > 0:
+            math_tool = Math(self.eixo_x, df_temp)
+            df_temp = math_tool.moving_average(self.config_ma_window)
+
+        self.df_sensores = df_temp
+        self.view.update_plot(self.eixo_x, self.df_sensores)
+
+    def apply_offset(self, n_linhas):
+        self.config_offset = int(n_linhas)
+        self._process_pipeline()
 
     def apply_outliers(self, window, thresh=3, verbose=False):
-        math_tool = Math(self.eixo_x, self.df_original.copy())
-        outlier_removed = math_tool.remove_outliers(window, thresh=3, verbose=False)
-        self.df_sensores = outlier_removed
-        self.view.update_plot(self.eixo_x, outlier_removed)
-        
+        self.config_outlier_window = int(window)
+        self._process_pipeline()
 
     def apply_move_average(self, sesh):
-        math_tool = Math(self.eixo_x, self.df_original.copy())
-        move_avg = math_tool.moving_average(sesh)
-        self.df_sensores = move_avg
-        self.view.update_plot(self.eixo_x, move_avg)
+        self.config_ma_window = int(sesh)
+        self._process_pipeline()
     
     def apply_calibration(self, factors):
-        math_tool = Math(self.eixo_x, self.df_original.copy())
-        calibrated_data = math_tool.calibration(factors)
-        self.df_sensores = calibrated_data
-        self.view.update_plot(self.eixo_x, calibrated_data)
+        self.config_calibration = factors
+        self._process_pipeline()
