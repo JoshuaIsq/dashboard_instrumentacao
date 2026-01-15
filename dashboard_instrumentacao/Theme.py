@@ -26,16 +26,12 @@ class Theme():
     @staticmethod
     def get_line_theme(index):
     
-        # Garante que não vai dar erro se vier o índice 19, 20... ele recicla as cores
         safe_index = index % len(Theme.LINE_COLORS)
         color = Theme.LINE_COLORS[safe_index]
 
         with dpg.theme() as theme:
-            # mvLineSeries é o componente específico para linhas de plot
             with dpg.theme_component(dpg.mvLineSeries):
                 dpg.add_theme_color(dpg.mvPlotCol_Line, color, category=dpg.mvThemeCat_Plots)
-                # Opcional: Definir espessura ou estilo do marcador aqui também
-                # dpg.add_theme_style(dpg.mvStyleVar_Marker, dpg.mvMarker_Circle) 
         
         return theme
     

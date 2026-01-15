@@ -16,6 +16,7 @@ class Controller():
         self.config_outlier_window = 0
         self.config_ma_window = 0
         self.config_calibration = None
+        self.config_lowpass = None
     
     def select_archive(self, sender, app_data):
         file_path = app_data['file_path_name']
@@ -50,6 +51,10 @@ class Controller():
         if self.config_ma_window > 0:
             math_tool = Math(self.eixo_x, df_temp)
             df_temp = math_tool.moving_average(self.config_ma_window)
+        
+        if self.config_lowpass:
+            math_tool = Math(self.eixo_x, df_temp)
+            df_temp = math_tool.lowpass_filter(cutoff_freq=self.config_lowpass, order=5)
 
         self.df_sensores = df_temp
         self.view.update_plot(self.eixo_x, self.df_sensores)
@@ -68,4 +73,8 @@ class Controller():
     
     def apply_calibration(self, factors):
         self.config_calibration = factors
+        self._process_pipeline()
+    
+    def apply_lowpass(self, cutoff_freq, freq_rate=None, order=5):
+        self.config_lowpass = cutoff_freq
         self._process_pipeline()
