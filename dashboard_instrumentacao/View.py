@@ -1,5 +1,6 @@
 import dearpygui.dearpygui as dpg
 from .Theme import Theme
+from .Model import Math
 
 class PrimaryView():
     def __init__(self):
@@ -114,6 +115,41 @@ class PrimaryView():
         dpg.add_spacer(width=50)
         dpg.add_button(label='Selecionar arquivo', callback=lambda: dpg.show_item('file_dialog_id'))
         dpg.add_separator()
+
+    def tendency_window(self):
+        tag_win = 'Tendência'
+
+        if dpg.does_item_exist(tag_win):
+            dpg.delete_item(tag_win)
+
+        tendency = Math.get_tendency()
+        if tendency is None or tendency.empty:
+            return
+        with dpg.window(label=self.TAG_PLOT_NEW_TITLE, tag=tag_win, width=400, height=300):
+            dpg.bind_item_theme(tag_win, Theme.color_tendency())
+            dpg.add_text("Regressão Linear - Tendência dos Sensores")
+
+            with dpg.plot(label=self.TAG_PLOT_NEW_TITLE, height=-1, width=-1):
+                dpg.add_plot_legend()
+                dpg.add_plot_axis(dpg.mvXAxis, label="Data/Hora", time=True)
+
+                with dpg.plot_axis(dpg.mvYAxis, label=self.TAG_PLOT_NEW_Y, tag="tendency_axe_y"):
+                    for i, col in enumerate(tendency.columns):
+                        tag_chk = self.checkbox_tags.get(col)
+                        if tag_chk and not dpg.get_value(tag_chk):
+                            continue
+                        y_data = tendency[col].tolist()
+                        x_data = self.data_time
+                        label_nome = f"Tendência Sensor {col-5}" 
+                        line_tag = dpg.add_line_series(
+                            x_data, 
+                            y_data, 
+                            label=label_nome, 
+                            parent="tendency_axe_y"
+                        )
+                        tema_da_linha = Theme.get_line_theme(i)
+                        dpg.bind_item_theme(line_tag, tema_da_linha)
+
     
     def _button_play(self):
         with dpg.group(horizontal=True):
@@ -183,7 +219,7 @@ class PrimaryView():
 
     
     def run(self):
-        dpg.bind_item_theme("Primary Window", Theme.color())
+        dpg.bind_item_theme("Primary Window", Theme.color_main())
         dpg.create_viewport(title='Analise Grafica', width=1000, height=600)
         dpg.setup_dearpygui()
         dpg.show_viewport()

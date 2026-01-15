@@ -61,6 +61,8 @@ class Math():
     def __init__(self, time_data, sensor_data):
         self.time_axe = np.array(time_data)
         self.sensor_axe = sensor_data
+        self.tendency = pd.DataFrame()
+        self.view_tendency = pd.DataFrame()
 
     def rate(self):
         if len(self.time_axe) > 1:
@@ -111,7 +113,7 @@ class Math():
         self.sensor_axe = self.sensor_axe.copy()
         self.sensor_axe = self.sensor_axe.multiply(factors, axis=1)
 
-        return self.sensor_axe.round(4)
+        return self.sensor_axe.round(8)
 
     def lowpass_filter(self, cutoff_freq, freq_rate=None, order=5): #Realizar alteração nesse valor
         self.sensor_axe = self.sensor_axe.copy()
@@ -129,5 +131,27 @@ class Math():
             self.sensor_axe[col] = signal.filtfilt(b, a, self.sensor_axe[col])
 
         return self.sensor_axe.round(4)
-
+    
+    def tendecy(self, window_size=None):
+        self.sensor_axe = self.sensor_axe.copy()
+        self.view_tendecy = pd.DataFrame(index=self.sensor_axe.index)
+        x_axis = np.arange(len(self.sensor_axe))
+        for col in self.sensor_axe.columns:
+            y_axis = self.sensor_axe[col].values
+            if window_size is None:
+                coef = np.polyfit(x_axis, y_axis, 1)
+                func = np.poly1d(coef)
+                self.tendency[col] = func(x_axis)
+            else:
+                print("Erro")
+                self.tendency[col] = func(x_axis)
+        
+        return self.tendency.round(4)
+    
+    def get_tendency(self, window_size):
+        if self.view_tendecy.empty:
+            print("Sem dados disponíveis para visualizar a tendência.")
+            return self.tendecy()
+        
+        return self.view_tendency.round(4)
         

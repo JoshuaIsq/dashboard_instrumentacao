@@ -36,7 +36,7 @@ class Theme():
         return theme
     
     @staticmethod
-    def color():
+    def color_main():
         with dpg.theme() as theme:
             with dpg.theme_component(dpg.mvAll):
                 dpg.add_theme_color(dpg.mvPlotCol_PlotBg, (255, 255, 255, 255), category=dpg.mvThemeCat_Plots)
@@ -56,3 +56,16 @@ class Theme():
         with dpg.font_registry():
             default_font = dpg.add_font("C:\\Windows\\Fonts\\Arial.ttf", 20)
         dpg.bind_font(default_font)
+
+    def color_tendency():
+        with dpg.theme() as theme:
+            with dpg.theme_component(dpg.mvAll):
+                # Fundo Branco (Usando Core, que é compatível com todas as versões)
+                dpg.add_theme_color(dpg.mvThemeCol_WindowBg, (255, 255, 255), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_color(dpg.mvThemeCol_ChildBg, (255, 255, 255), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_color(dpg.mvThemeCol_PopupBg, (255, 255, 255), category=dpg.mvThemeCat_Core)
+                # Texto e Bordas Pretos
+                dpg.add_theme_color(dpg.mvThemeCol_Text, (0, 0, 0), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_color(dpg.mvThemeCol_Border, (0, 0, 0), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_color(dpg.mvThemeCol_FrameBg, (255, 255, 255), category=dpg.mvThemeCat_Core)
+        return theme
