@@ -78,3 +78,11 @@ class Controller():
     def apply_lowpass(self, cutoff_freq, freq_rate=None, order=5):
         self.config_lowpass = cutoff_freq
         self._process_pipeline()
+
+    def get_tendency_data(self):
+        if self.df_sensores is None or self.eixo_x is None:
+            return None
+
+        math_tool = Math(self.eixo_x, self.df_sensores)
+        
+        return math_tool.get_tendency(window_size=None)

@@ -14,7 +14,8 @@ def main():
     controller = Controller(model, view)
 
     view.set_callback(controller.select_archive, controller.apply_offset, \
-                      controller.apply_outliers, controller.apply_move_average, controller.apply_calibration, controller.apply_lowpass)
+                      controller.apply_outliers, controller.apply_move_average, \
+                        controller.apply_calibration, controller.apply_lowpass, controller.get_tendency_data)
 
     view.build_window()
     view.run()

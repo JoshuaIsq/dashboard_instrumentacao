@@ -10,19 +10,21 @@ class PrimaryView():
         self.callback_offset_func = None 
         self.callback_outliers = None #observar se retirar isso daqui é seguro
         self.checkbox_tags = {}
+        self.callback_tendency = None
 
         self.TAG_PLOT_TITLE = "graph title"
         self.TAG_PLOT_Y = "axe_y_title"
         self.TAG_PLOT_NEW_TITLE = "Extensômetros superiores"
         self.TAG_PLOT_NEW_Y = "Deslocamento (mm)"
 
-    def set_callback(self, archive, offset, outliers, average, calibration, lowpass):
+    def set_callback(self, archive, offset, outliers, average, calibration, lowpass, tendency):
         self.callback_archive = archive
         self.callback_offset_func = offset
         self.callback_outliers = outliers
         self.callback_move_average = average
         self.callback_calibration = calibration
         self.callback_lowwpass = lowpass
+        self.callback_tendency = tendency
 
     def run_lowpass_callback(self):
         if self.callback_lowwpass:
@@ -122,10 +124,11 @@ class PrimaryView():
         if dpg.does_item_exist(tag_win):
             dpg.delete_item(tag_win)
 
-        tendency = Math.get_tendency()
+        tendency = self.callback_tendency()
         if tendency is None or tendency.empty:
             return
-        with dpg.window(label=self.TAG_PLOT_NEW_TITLE, tag=tag_win, width=400, height=300):
+        
+        with dpg.window(label=self.TAG_PLOT_NEW_TITLE, tag=tag_win, width=800, height=600):
             dpg.bind_item_theme(tag_win, Theme.color_tendency())
             dpg.add_text("Regressão Linear - Tendência dos Sensores")
 
@@ -134,6 +137,7 @@ class PrimaryView():
                 dpg.add_plot_axis(dpg.mvXAxis, label="Data/Hora", time=True)
 
                 with dpg.plot_axis(dpg.mvYAxis, label=self.TAG_PLOT_NEW_Y, tag="tendency_axe_y"):
+                    dpg.set_axis_limits("tendency_axe_y",-40,40)
                     for i, col in enumerate(tendency.columns):
                         tag_chk = self.checkbox_tags.get(col)
                         if tag_chk and not dpg.get_value(tag_chk):
@@ -165,6 +169,12 @@ class PrimaryView():
                                 "input_calibration_factors", callbacks=self.run_calibration_callback, is_float=True)
             self._button_config("Filtro passa-baixa (Hz)", "Aplicar filtro", \
                                 "input_lowpass_cutoff", callbacks=self.run_lowpass_callback, is_float=True)
+            
+        dpg.add_spacer(height=10)
+
+        with dpg.group(horizontal=True):
+            dpg.add_button(label="Exibir Tendência", callback=self.tendency_window)
+            dpg.add_spacer(width=20)
 
     def _chanel_list(self):
         with dpg.group(horizontal=False):

@@ -134,24 +134,21 @@ class Math():
     
     def tendecy(self, window_size=None):
         self.sensor_axe = self.sensor_axe.copy()
-        self.view_tendecy = pd.DataFrame(index=self.sensor_axe.index)
+        self.view_tendency = pd.DataFrame(index=self.sensor_axe.index)
         x_axis = np.arange(len(self.sensor_axe))
         for col in self.sensor_axe.columns:
             y_axis = self.sensor_axe[col].values
             if window_size is None:
                 coef = np.polyfit(x_axis, y_axis, 1)
                 func = np.poly1d(coef)
-                self.tendency[col] = func(x_axis)
-            else:
-                print("Erro")
-                self.tendency[col] = func(x_axis)
+                self.view_tendency[col] = func(x_axis)
         
-        return self.tendency.round(4)
+        return self.view_tendency.round(4)
     
     def get_tendency(self, window_size):
-        if self.view_tendecy.empty:
+        if self.view_tendency.empty:
             print("Sem dados disponíveis para visualizar a tendência.")
-            return self.tendecy()
+            return self.tendecy(window_size)
         
         return self.view_tendency.round(4)
         
