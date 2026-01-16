@@ -1,4 +1,5 @@
 import dearpygui.dearpygui as dpg
+from sklearn import calibration
 from .Theme import Theme
 from .Model import Math
 
@@ -8,7 +9,9 @@ class PrimaryView():
         self.data_sensors = None
         self.data_time = None
         self.callback_offset_func = None 
-        self.callback_outliers = None #observar se retirar isso daqui é seguro
+        self.callback_outliers = None 
+        self.callback_calibration = None
+        self.callback_lowwpass = None
         self.checkbox_tags = {}
         self.callback_tendency = None
 
@@ -69,13 +72,16 @@ class PrimaryView():
             self.checkbox_tags[col] = tag
         self.update_graph()
 
-    def update_titles(self):
+    def update_titles(self, sender, app_data, user_data):
+        window_tag = user_data
         new_title = dpg.get_value(self.TAG_PLOT_NEW_TITLE)
         new_axeY = dpg.get_value(self.TAG_PLOT_NEW_Y)
         if dpg.does_item_exist(self.TAG_PLOT_TITLE):
             dpg.set_item_label(self.TAG_PLOT_TITLE, new_title)
         if dpg.does_item_exist(self.TAG_PLOT_Y):
-                    dpg.set_item_label(self.TAG_PLOT_Y, new_axeY)
+            dpg.set_item_label(self.TAG_PLOT_Y, new_axeY)
+        if dpg.does_item_exist(window_tag):
+            dpg.delete_item(window_tag)
 
     def update_graph(self, sender=None, app_data=None):
         if self.data_sensors is None:
@@ -106,9 +112,9 @@ class PrimaryView():
             with dpg.group(horizontal=False):
                 dpg.add_text(text)
                 if is_float == True:
-                    dpg.add_input_float(default_value=0, width=130, tag=tag, min_value=0)
+                    dpg.add_input_float(default_value=0, width=160, tag=tag, min_value=0, format="%.6f")
                 else:
-                    dpg.add_input_int(default_value=0, width=130, tag=tag, min_value=0)
+                    dpg.add_input_int(default_value=0, width=160, tag=tag, min_value=0)
                 dpg.add_spacer(height=5)
                 dpg.add_button(label=label, callback=callbacks) 
     
@@ -195,16 +201,18 @@ class PrimaryView():
     
     def _build_sidebar(self):
         with dpg.group(horizontal=False):
+            dpg.add_button(label="Configurar títulos", callback=lambda: dpg.show_item("config_window"))
+            dpg.add_spacer(height=10)
             dpg.add_separator()
+        with dpg.window(label="Editar titulos", tag="config_window", width=300, height=200, show=False, modal=True):
             dpg.add_text("Configurações Visuais:")
             dpg.add_input_text(label="Título", tag=self.TAG_PLOT_NEW_TITLE, default_value="Extensômetros", width=120)
             dpg.add_input_text(label="Nome Eixo Y", tag=self.TAG_PLOT_NEW_Y, default_value="Deslocamento (mm)", width=120)
             dpg.add_spacer(height=5)
-            dpg.add_button(label="Atualizar Títulos", callback=self.update_titles)
-    
-            dpg.add_separator()
-            dpg.add_spacer(height=10)
-
+            with dpg.group(horizontal=True):
+                dpg.add_button(label="Atualizar Títulos", callback=lambda: [self.update_titles(None, None, None), dpg.hide_item("config_window")], user_data="config_window")
+                dpg.add_button(label="Cancelar", callback=lambda: dpg.hide_item("janela_titulos"))
+                
     def build_window(self):
         dpg.create_context()
         Theme.font()
@@ -220,7 +228,6 @@ class PrimaryView():
             self._main_window()
             self._button_play()
             self._build_sidebar()
-            dpg.add_separator()
             dpg.add_spacer(height=10)
             with dpg.group(horizontal=True):
                 self._chanel_list()
