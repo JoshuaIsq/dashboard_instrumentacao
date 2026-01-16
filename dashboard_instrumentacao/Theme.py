@@ -40,7 +40,7 @@ class Theme():
         with dpg.theme() as theme:
             with dpg.theme_component(dpg.mvAll):
                 dpg.add_theme_color(dpg.mvPlotCol_PlotBg, (255, 255, 255, 255), category=dpg.mvThemeCat_Plots)
-                dpg.add_theme_color(dpg.mvThemeCol_WindowBg, (100, 149, 237))
+                dpg.add_theme_color(dpg.mvThemeCol_WindowBg, (178, 34, 34))
                 dpg.add_theme_color(dpg.mvThemeCol_ChildBg, (220, 220, 220))
                 dpg.add_theme_color(dpg.mvThemeCol_PopupBg, (255, 255, 255, 255))
                 dpg.add_theme_color(dpg.mvThemeCol_Text, (0, 0, 0))
@@ -69,3 +69,19 @@ class Theme():
                 dpg.add_theme_color(dpg.mvThemeCol_Border, (0, 0, 0), category=dpg.mvThemeCat_Core)
                 dpg.add_theme_color(dpg.mvThemeCol_FrameBg, (255, 255, 255), category=dpg.mvThemeCat_Core)
         return theme
+    
+    # Adicione este método novo
+    @staticmethod
+    def init_logo(image_path, tag_name="texture_logo"):
+        
+        try:
+            width, height, channels, data = dpg.load_image("C:\Users\joshua.marinho\Desktop\ISQ-large.webp")
+        except TypeError:
+            print(f"Erro: Não foi possível carregar a imagem em '{"C:\Users\joshua.marinho\Desktop\ISQ-large.webp"}'")
+            return 0, 0
+
+        
+        with dpg.texture_registry(show=False):
+            dpg.add_static_texture(width=width, height=height, default_value=data, tag=tag_name)
+            
+        return width, height

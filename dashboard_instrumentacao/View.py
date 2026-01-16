@@ -14,13 +14,14 @@ class PrimaryView():
         self.callback_lowwpass = None
         self.checkbox_tags = {}
         self.callback_tendency = None
+        self.callback_highpass = None
 
         self.TAG_PLOT_TITLE = "graph title"
         self.TAG_PLOT_Y = "axe_y_title"
         self.TAG_PLOT_NEW_TITLE = "Extensômetros superiores"
         self.TAG_PLOT_NEW_Y = "Deslocamento (mm)"
 
-    def set_callback(self, archive, offset, outliers, average, calibration, lowpass, tendency):
+    def set_callback(self, archive, offset, outliers, average, calibration, lowpass, tendency, highpass):
         self.callback_archive = archive
         self.callback_offset_func = offset
         self.callback_outliers = outliers
@@ -28,6 +29,12 @@ class PrimaryView():
         self.callback_calibration = calibration
         self.callback_lowwpass = lowpass
         self.callback_tendency = tendency
+        self.callback_highpass = highpass
+    
+    def run_highpass_callback(self):
+        if self.callback_highpass:
+            cutoff = dpg.get_value("input_highpass_cutoff")
+            self.callback_highpass(cutoff_freq=cutoff, freq_rate=None, order=5)
 
     def run_lowpass_callback(self):
         if self.callback_lowwpass:
@@ -175,6 +182,8 @@ class PrimaryView():
                                 "input_calibration_factors", callbacks=self.run_calibration_callback, is_float=True)
             self._button_config("Filtro passa-baixa (Hz)", "Aplicar filtro", \
                                 "input_lowpass_cutoff", callbacks=self.run_lowpass_callback, is_float=True)
+            self._button_config("Filtro passa-alta (Hz)", "Aplicar filtro", \
+                                "input_highpass_cutoff", callbacks=self.run_highpass_callback, is_float=True)
             
         dpg.add_spacer(height=10)
 

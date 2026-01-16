@@ -132,6 +132,20 @@ class Math():
 
         return self.sensor_axe.round(4)
     
+    def filter_high_pass(self, cutoff_freq, freq_rate=None, order=5):
+        self.sensor_axe = self.sensor_axe.copy()
+        if freq_rate is None:
+            freq_rate = self.rate()
+        nyquist = 0.5 * freq_rate
+        if cutoff_freq >= nyquist:
+            cutoff_freq = nyquist * 0.99 
+        filter_high_pass = cutoff_freq/nyquist
+        b, a = signal.butter(order, filter_high_pass, btype="highpass", analog=False)
+        for col in self.sensor_axe.columns:
+            self.sensor_axe[col] = signal.filtfilt(b, a, self.sensor_axe[col])
+
+        return self.sensor_axe.round(4)
+        
     def tendecy(self, window_size=None):
         self.sensor_axe = self.sensor_axe.copy()
         self.view_tendency = pd.DataFrame(index=self.sensor_axe.index)
