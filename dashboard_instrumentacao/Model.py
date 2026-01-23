@@ -20,7 +20,7 @@ class LogImporter():
     def import_file(self, file):
         if file.endswith('.txt'):
             print('Iniciando leitura')
-            txt_file = pd.read_csv(file, sep='\t', header=None, engine='python', on_bad_lines='skip')
+            txt_file = pd.read_csv(file, sep=None, header=None, engine='python', on_bad_lines='skip')
             print(f"Lendo arquivo {file}, colunas encontradas: {(txt_file.shape[1])}")
             self.df_sensors = txt_file
             
@@ -63,6 +63,7 @@ class Math():
         self.sensor_axe = sensor_data
         self.tendency = pd.DataFrame()
         self.view_tendency = pd.DataFrame()
+        self.trend_cache = {}
 
     def rate(self):
         if len(self.time_axe) > 1:
@@ -150,14 +151,26 @@ class Math():
         self.sensor_axe = self.sensor_axe.copy()
         self.view_tendency = pd.DataFrame(index=self.sensor_axe.index)
         x_axis = np.arange(len(self.sensor_axe))
+        limit = 50000
+        step = 1
+        if len(x_axis) > limit:
+            step = len(x_axis) // limit
+        x_small = x_axis[::step]
+        num_view = 100
+        x_visual_indices = np.linspace(0, len(x_axis)-1, num_view).astype(int)
         for col in self.sensor_axe.columns:
             y_axis = self.sensor_axe[col].values
+            y_small = y_axis[::step]
             if window_size is None:
-                coef = np.polyfit(x_axis, y_axis, 1)
+                coef = np.polyfit(x_small, y_small, 1)
                 func = np.poly1d(coef)
-                self.view_tendency[col] = func(x_axis)
+                y_visual = func(x_visual_indices)
+                self.trend_cache[col] = {
+                'y': y_visual.tolist(),
+                'x_idx': x_visual_indices # Guardamos os índices para recuperar o tempo depois
+            }
         
-        return self.view_tendency.round(4)
+        return self.trend_cache
     
     def get_tendency(self, window_size):
         if self.view_tendency.empty:

@@ -19,7 +19,7 @@ class PrimaryView():
         self.TAG_PLOT_TITLE = "graph title"
         self.TAG_PLOT_Y = "axe_y_title"
         self.TAG_PLOT_NEW_TITLE = "Extensômetros superiores"
-        self.TAG_PLOT_NEW_Y = "Deslocamento (mm)"
+        self.TAG_PLOT_NEW_Y = "Tensão (MPa)"
 
     def set_callback(self, archive, offset, outliers, average, calibration, lowpass, tendency, highpass):
         self.callback_archive = archive
@@ -126,10 +126,19 @@ class PrimaryView():
                 dpg.add_button(label=label, callback=callbacks) 
     
     def _main_window(self):
-        dpg.add_text("Dashboard instrumentação", color=(0, 0, 0),)
-        dpg.add_spacer(width=50)
-        dpg.add_button(label='Selecionar arquivo', callback=lambda: dpg.show_item('file_dialog_id'))
+        with dpg.group(horizontal=True):
+            with dpg.group():
+                dpg.add_text("Dashboard instrumentação", color=(0, 0, 0),)
+                dpg.add_spacer(height=2)
+                dpg.add_button(label='Selecionar arquivo', callback=lambda: dpg.show_item('file_dialog_id'))
+            dpg.add_spacer(width=1000)
+            if dpg.does_alias_exist("texture_logo"):
+                dpg.add_image("texture_logo", width=100, height=100)
+            else:
+                dpg.add_text("[Logo não encontrada]")
+        dpg.add_spacer(height=10)
         dpg.add_separator()
+
 
     def tendency_window(self):
         tag_win = 'Tendência'
@@ -138,34 +147,46 @@ class PrimaryView():
             dpg.delete_item(tag_win)
 
         tendency = self.callback_tendency()
-        if tendency is None or tendency.empty:
+        if not tendency:
             return
         
-        with dpg.window(label=self.TAG_PLOT_NEW_TITLE, tag=tag_win, width=800, height=600):
+        current_title = dpg.get_value(self.TAG_PLOT_NEW_TITLE)
+        current_y_label = dpg.get_value(self.TAG_PLOT_NEW_Y)
+        
+        with dpg.window(label=f"Tendência - {current_title}", tag=tag_win, width=800, height=600):
             dpg.bind_item_theme(tag_win, Theme.color_tendency())
             dpg.add_text("Regressão Linear - Tendência dos Sensores")
 
-            with dpg.plot(label=self.TAG_PLOT_NEW_TITLE, height=-1, width=-1):
+            with dpg.plot(label=current_title, height=-1, width=-1):
                 dpg.add_plot_legend()
                 dpg.add_plot_axis(dpg.mvXAxis, label="Data/Hora", time=True)
 
-                with dpg.plot_axis(dpg.mvYAxis, label=self.TAG_PLOT_NEW_Y, tag="tendency_axe_y"):
+                with dpg.plot_axis(dpg.mvYAxis, label=current_y_label, tag="tendency_axe_y"):
                     dpg.set_axis_limits("tendency_axe_y",-40,40)
-                    for i, col in enumerate(tendency.columns):
-                        tag_chk = self.checkbox_tags.get(col)
-                        if tag_chk and not dpg.get_value(tag_chk):
-                            continue
-                        y_data = tendency[col].tolist()
-                        x_data = self.data_time
-                        label_nome = f"Tendência Sensor {col-5}" 
-                        line_tag = dpg.add_line_series(
-                            x_data, 
-                            y_data, 
-                            label=label_nome, 
-                            parent="tendency_axe_y"
-                        )
-                        tema_da_linha = Theme.get_line_theme(i)
-                        dpg.bind_item_theme(line_tag, tema_da_linha)
+                    order_channels = sorted(self.checkbox_tags.items())
+                    for i, (col_name, tag_id) in enumerate(order_channels):
+                        if col_name in tendency and dpg.get_value(tag_id):
+
+                            trend_data = tendency[col_name]
+                            y_visual = trend_data['y']      # 100 pontos de Y
+                            x_indices = trend_data['x_idx'] # 100 índices de X
+                            
+                            # Recupera os Tempos Reais (Data/Hora) usando os índices
+                            # Isso garante que a reta fique alinhada com o tempo correto
+                            x_visual = [self.data_time[int(k)] for k in x_indices]
+                            label_nome = f"Tendência Sensor {col_name-5}" 
+                            
+                            line_tag = dpg.add_line_series(
+                                x_visual, 
+                                y_visual, 
+                                label=label_nome, 
+                                parent="tendency_axe_y"
+                            )
+                            
+                            tema_da_linha = Theme.get_line_theme(i)
+                            dpg.bind_item_theme(line_tag, tema_da_linha)
+                    
+                    dpg.fit_axis_data("tendency_axe_y")
 
     
     def _button_play(self):
@@ -173,15 +194,18 @@ class PrimaryView():
             self._button_config("Ajuste de offset", "Aplicar offset", \
                                 "input_offset",callbacks=self.run_offset_callback, is_float=False)
             dpg.add_spacer(width=20)
+            self._button_config("Fator de Calibração", "Aplicar calibração", \
+                                "input_calibration_factors", callbacks=self.run_calibration_callback, is_float=True)
+            dpg.add_spacer(width=20)
             self._button_config("Remoção de outliers", "Remover outliers", \
                                 "input_outliers", callbacks=self.run_outliers_Callback, is_float=False)
             dpg.add_spacer(width=20)
             self._button_config("Média Movel", "Aplicar média movel", \
                                 "input_moving_average", callbacks=self.run_move_average_callback, is_float=True)
-            self._button_config("Fator de Calibração", "Aplicar calibração", \
-                                "input_calibration_factors", callbacks=self.run_calibration_callback, is_float=True)
+            dpg.add_spacer(width=20)
             self._button_config("Filtro passa-baixa (Hz)", "Aplicar filtro", \
                                 "input_lowpass_cutoff", callbacks=self.run_lowpass_callback, is_float=True)
+            dpg.add_spacer(width=20)
             self._button_config("Filtro passa-alta (Hz)", "Aplicar filtro", \
                                 "input_highpass_cutoff", callbacks=self.run_highpass_callback, is_float=True)
             
@@ -205,7 +229,7 @@ class PrimaryView():
             with dpg.plot(label="Extensômetros superiores", height=-1, width=1250, query=True, tag=self.TAG_PLOT_TITLE):
                 dpg.add_plot_legend()
                 xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="Data / Hora", tag="eixo_x", time=True)
-                yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Deslocamento (mm)", tag=self.TAG_PLOT_Y)
+                yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="Tensão (MPa)", tag=self.TAG_PLOT_Y)
                 dpg.set_axis_limits(self.TAG_PLOT_Y,-40,40)
     
     def _build_sidebar(self):
@@ -215,8 +239,8 @@ class PrimaryView():
             dpg.add_separator()
         with dpg.window(label="Editar titulos", tag="config_window", width=300, height=200, show=False, modal=True):
             dpg.add_text("Configurações Visuais:")
-            dpg.add_input_text(label="Título", tag=self.TAG_PLOT_NEW_TITLE, default_value="Extensômetros", width=120)
-            dpg.add_input_text(label="Nome Eixo Y", tag=self.TAG_PLOT_NEW_Y, default_value="Deslocamento (mm)", width=120)
+            dpg.add_input_text(label="Título", tag=self.TAG_PLOT_NEW_TITLE, default_value="Extensômetros superiores", width=120)
+            dpg.add_input_text(label="Nome Eixo Y", tag=self.TAG_PLOT_NEW_Y, default_value="Tensão (MPa)", width=120)
             dpg.add_spacer(height=5)
             with dpg.group(horizontal=True):
                 dpg.add_button(label="Atualizar Títulos", callback=lambda: [self.update_titles(None, None, None), dpg.hide_item("config_window")], user_data="config_window")
@@ -224,6 +248,7 @@ class PrimaryView():
                 
     def build_window(self):
         dpg.create_context()
+        img_w, img_h = Theme.init_logo("C:/Users/joshua.marinho/Downloads/ISQ-large.png", "texture_logo")
         Theme.font()
 
         #selecionar arquivo

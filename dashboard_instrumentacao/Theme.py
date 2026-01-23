@@ -3,24 +3,24 @@ import dearpygui.dearpygui as dpg
 class Theme():
 
     LINE_COLORS = [
-        (255, 0, 0),        # 0. Vermelho
-        (0, 0, 255),        # 1. Azul
-        (0, 200, 0),        # 2. Verde Escuro
-        (255, 165, 0),      # 3. Laranja
-        (128, 0, 128),      # 4. Roxo
-        (0, 255, 255),      # 5. Ciano
-        (255, 0, 255),      # 6. Magenta
-        (165, 42, 42),      # 7. Marrom
-        (0, 128, 128),      # 8. Teal (Verde-azulado)
-        (255, 192, 203),    # 9. Rosa
-        (128, 128, 0),      # 10. Oliva
-        (75, 0, 130),       # 11. Indigo
-        (255, 215, 0),      # 12. Dourado
-        (128, 128, 128),    # 13. Cinza
-        (0, 0, 0),          # 14. Preto
-        (50, 205, 50),      # 15. Verde Lima
-        (250, 128, 114),    # 16. Salmão
-        (70, 130, 180)      # 17. Azul Aço
+        (255, 0, 0, 255),        # 0. Vermelho
+        (0, 0, 255, 255),        # 1. Azul
+        (0, 200, 0, 255),        # 2. Verde Escuro
+        (255, 165, 0, 255),      # 3. Laranja
+        (128, 0, 128, 255),      # 4. Roxo
+        (0, 255, 255, 255),      # 5. Ciano
+        (255, 0, 255, 255),      # 6. Magenta
+        (165, 42, 42, 255),      # 7. Marrom
+        (0, 128, 128, 255),      # 8. Teal (Verde-azulado)
+        (255, 192, 203, 255),    # 9. Rosa
+        (128, 128, 0, 255),      # 10. Oliva
+        (75, 0, 130, 255),       # 11. Indigo
+        (255, 215, 0, 255),      # 12. Dourado
+        (128, 128, 128, 255),    # 13. Cinza
+        (0, 0, 0, 255),          # 14. Preto
+        (50, 205, 50, 255),      # 15. Verde Lima
+        (250, 128, 114, 255),    # 16. Salmão
+        (70, 130, 180, 255)      # 17. Azul Aço
     ]
 
     @staticmethod
@@ -70,14 +70,14 @@ class Theme():
                 dpg.add_theme_color(dpg.mvThemeCol_FrameBg, (255, 255, 255), category=dpg.mvThemeCat_Core)
         return theme
     
-    # Adicione este método novo
+    
     @staticmethod
     def init_logo(image_path, tag_name="texture_logo"):
         
         try:
-            width, height, channels, data = dpg.load_image("C:\Users\joshua.marinho\Desktop\ISQ-large.webp")
+            width, height, channels, data = dpg.load_image("C:/Users/joshua.marinho/Desktop/ISQ-Logo-big.png")
         except TypeError:
-            print(f"Erro: Não foi possível carregar a imagem em '{"C:\Users\joshua.marinho\Desktop\ISQ-large.webp"}'")
+            print(f"Erro: Não foi possível carregar a imagem em {'C:/Users/joshua.marinho/Desktop/ISQ-Logo-big.png'}")
             return 0, 0
 
         
